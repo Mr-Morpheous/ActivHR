@@ -1,0 +1,387 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  PAC brand tokens — sourced from "The PAC Document Format" (DS-01).
+  The system's one rule ("every page is either paper or ink") maps directly
+  onto light/dark mode here: light = Warm Paper, dark = Ink. Secondary,
+  muted and border tones are extended/derived shades needed for app UI
+  surface hierarchy that the print-oriented doc didn't need to specify.
+*/
+
+:root {
+  --radius: 0.2rem;
+
+  /* base palette — swapped from PAC warm/orange to a cool slate/blue system */
+  --pac-ink: #0f172a;
+  --pac-graphite: #1e293b;
+  --pac-orange: #2563eb;       /* now "primary blue" — kept var name for compatibility */
+  --pac-orange-light: #f59e0b; /* repurposed as the "late/warning" amber accent */
+  --pac-ember: #1d4ed8;
+  --pac-paper: #f8fafc;
+
+  --background: var(--pac-paper);
+  --foreground: var(--pac-ink);
+
+  --card: #ffffff;
+  --card-foreground: var(--pac-ink);
+
+  --popover: #ffffff;
+  --popover-foreground: var(--pac-ink);
+
+  --primary: var(--pac-orange);
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-foreground: var(--pac-ink);
+
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  --accent: #dbeafe;
+  --accent-foreground: #1e40af;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --border: rgb(15 23 42 / 8%);
+  --input: rgb(15 23 42 / 12%);
+  --ring: var(--pac-orange);
+
+  --font-plex-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-source-serif: "Source Serif 4 Variable", ui-serif, Georgia, serif;
+  --font-plex-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+.dark {
+  --background: #131313;
+  --foreground: #f1f5f9;
+
+  --card: #1a1a1a;
+  --card-foreground: #f1f5f9;
+
+  --popover: #1a1a1a;
+  --popover-foreground: #f1f5f9;
+
+  --primary: #eb5733;
+  --primary-foreground: #131313;
+
+  --secondary: #1f1f1f;
+  --secondary-foreground: #f1f5f9;
+
+  --muted: #1f1f1f;
+  --muted-foreground: #a3a3a3;
+
+  --accent: #eb5733;
+  --accent-foreground: #131313;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #f1f5f9;
+
+  --border: rgb(241 245 249 / 10%);
+  --input: rgb(241 245 249 / 14%);
+  --ring: #eb5733;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-pac-ink: var(--pac-ink);
+  --color-pac-graphite: var(--pac-graphite);
+  --color-pac-orange: var(--pac-orange);
+  --color-pac-orange-light: var(--pac-orange-light);
+  --color-pac-ember: var(--pac-ember);
+  --color-pac-paper: var(--pac-paper);
+
+  --font-sans: var(--font-plex-sans);
+  --font-serif: var(--font-source-serif);
+  --font-mono: var(--font-plex-mono);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif;
+    letter-spacing: -0.01em;
+  }
+  .font-label {
+    @apply font-mono uppercase tracking-widest text-xs;
+  }
+}
+
+/* ── Bento proximity glow ──────────────────────────────────────────────────
+   Ported from attend-v3's MagicBento, rebuilt on DS-01 tokens.
+
+   The original hardcodes `rgba(132, 0, 255, …)` against a `#120F17` field —
+   dark-only, and invisible on paper. These derive from `--primary` via
+   color-mix, so the ring re-themes with the light/dark toggle for free.
+
+   `--glow-intensity` is written per-card by BentoGrid on pointer move: 1 when
+   the pointer is within the proximity band, ramping to 0 across the fade
+   band. The ::after is masked with `mask-composite: exclude` so it paints
+   only the 1px border ring, not the card face — a lit hairline rather than a
+   glowing slab, which is what a document format can carry.
+
+   Radius is 1px to match `border-border` elsewhere; MagicBento used 6px,
+   which reads as a neon outline against DS-01's hairlines. */
+.bento-card {
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-intensity: 0;
+  --glow-radius: 18rem;
+}
+
+.bento-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    color-mix(
+        in srgb,
+        var(--primary) calc(var(--glow-intensity) * 75%),
+        transparent
+      )
+      0%,
+    color-mix(
+        in srgb,
+        var(--primary) calc(var(--glow-intensity) * 32%),
+        transparent
+      )
+      32%,
+    transparent 62%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Particles are appended imperatively by BentoCard; the halo is cheaper as a
+   pseudo-element than a second gsap-tracked node per particle. */
+.bento-particle::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
+  z-index: -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bento-card::after {
+    display: none;
+  }
+}
+/* ── Terminal-glitch auth card ─────────────────────────────────────────────
+   Always dark regardless of light/dark mode — an intentional "terminal
+   window on paper" contrast, not a theming bug. Colors pull from existing
+   tokens (--primary, --pac-orange-light) rather than new hardcoded ones. */
+
+.glitch-card {
+  background-color: var(--pac-ink);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--primary) 15%, transparent),
+    inset 0 0 12px rgb(0 0 0 / 40%);
+}
+
+.glitch-card__header {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+  background-color: rgb(0 0 0 / 25%);
+}
+
+.glitch-field {
+  position: relative;
+}
+
+.glitch-field input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  padding: 0.75em 0;
+  font-size: 1rem;
+  color: var(--pac-paper);
+  font-family: var(--font-plex-mono);
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.glitch-field input:focus {
+  border-color: var(--primary);
+}
+
+.glitch-field label {
+  position: absolute;
+  top: 0.75em;
+  left: 0;
+  font-family: var(--font-plex-mono);
+  font-size: 1rem;
+  color: var(--primary);
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.glitch-field input:focus + label,
+.glitch-field input:not(:placeholder-shown) + label {
+  top: -1.2em;
+  font-size: 0.75rem;
+  opacity: 1;
+}
+
+.glitch-field input:focus + label::before,
+.glitch-field input:focus + label::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background-color: var(--pac-ink);
+}
+
+.glitch-field input:focus + label::before {
+  color: var(--pac-orange-light);
+  animation: glitch-anim 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.glitch-field input:focus + label::after {
+  color: var(--primary);
+  animation: glitch-anim 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both;
+}
+
+@keyframes glitch-anim {
+  0% { transform: translate(0); clip-path: inset(0 0 0 0); }
+  20% { transform: translate(-5px, 3px); clip-path: inset(50% 0 20% 0); }
+  40% { transform: translate(3px, -2px); clip-path: inset(20% 0 60% 0); }
+  60% { transform: translate(-4px, 2px); clip-path: inset(80% 0 5% 0); }
+  80% { transform: translate(4px, -3px); clip-path: inset(30% 0 45% 0); }
+  100% { transform: translate(0); clip-path: inset(0 0 0 0); }
+}
+
+.glitch-submit {
+  position: relative;
+  width: 100%;
+  padding: 0.8em;
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  font-family: var(--font-plex-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.glitch-submit:hover,
+.glitch-submit:focus {
+  background-color: var(--primary);
+  color: var(--pac-ink);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 60%, transparent);
+}
+
+.glitch-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.glitch-submit__text {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  transition: opacity 0.2s ease;
+}
+
+.glitch-submit:hover .glitch-submit__text {
+  opacity: 0;
+}
+
+.glitch-submit::before,
+.glitch-submit::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.glitch-submit:hover::before,
+.glitch-submit:focus::before {
+  opacity: 1;
+  color: var(--pac-orange-light);
+  animation: glitch-anim 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.glitch-submit:hover::after,
+.glitch-submit:focus::after {
+  opacity: 1;
+  color: var(--pac-ink);
+  background-color: var(--primary);
+  animation: glitch-anim 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glitch-field input:focus + label::before,
+  .glitch-field input:focus + label::after,
+  .glitch-submit:hover::before,
+  .glitch-submit:focus::before,
+  .glitch-submit:hover::after,
+  .glitch-submit:focus::after {
+    animation: none;
+    opacity: 0;
+  }
+  .glitch-submit:hover .glitch-submit__text {
+    opacity: 1;
+  }
+}

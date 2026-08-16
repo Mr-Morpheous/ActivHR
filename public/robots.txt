@@ -1,0 +1,14 @@
+# https://activhr.africa/robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /super/
+Disallow: /api/
+Disallow: /login
+Disallow: /onboarding
+Disallow: /checkin
+Disallow: /reset-password
+
+Sitemap: https://activhr.africa/sitemap.xml

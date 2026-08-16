@@ -1,0 +1,393 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  PAC brand tokens — sourced from "The PAC Document Format" (DS-01).
+  The system's one rule ("every page is either paper or ink") maps directly
+  onto light/dark mode here: light = Cool Paper, dark = Ink. Secondary,
+  muted and border tones are extended/derived shades needed for app UI
+  surface hierarchy that the print-oriented doc didn't need to specify.
+*/
+
+:root {
+  --radius: 0.2rem;
+
+  /* base palette — swapped from PAC warm/orange to a cool slate/blue system */
+  --pac-ink: #0f172a;
+  --pac-graphite: #1e293b;
+  --pac-orange: #2563eb;       /* now "primary blue" — kept var name for compatibility */
+  --pac-orange-light: #f59e0b; /* repurposed as the "late/warning" amber accent */
+  --pac-ember: #1d4ed8;
+  --pac-paper: #f8fafc;
+
+  --background: var(--pac-paper);
+  --foreground: var(--pac-ink);
+
+  --card: #ffffff;
+  --card-foreground: var(--pac-ink);
+
+  --popover: #ffffff;
+  --popover-foreground: var(--pac-ink);
+
+  --primary: var(--pac-orange);
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-foreground: var(--pac-ink);
+
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  --accent: #dbeafe;
+  --accent-foreground: #1e40af;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --border: rgb(15 23 42 / 8%);
+  --input: rgb(15 23 42 / 12%);
+  --ring: var(--pac-orange);
+
+  /* typefaces — self-hosted via @fontsource, no Google Fonts CDN call */
+  --font-plex-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-source-serif: "Source Serif 4 Variable", ui-serif, Georgia, serif;
+  --font-plex-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+.dark {
+  --background: #131313;
+  --foreground: #f1f5f9;
+
+  --card: #1a1a1a;
+  --card-foreground: #f1f5f9;
+
+  --popover: #1a1a1a;
+  --popover-foreground: #f1f5f9;
+
+  --primary: #eb5733;
+  --primary-foreground: #131313;
+
+  --secondary: #1f1f1f;
+  --secondary-foreground: #f1f5f9;
+
+  --muted: #1f1f1f;
+  --muted-foreground: #a3a3a3;
+
+  --accent: #eb5733;
+  --accent-foreground: #131313;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #f1f5f9;
+
+  --border: rgb(241 245 249 / 10%);
+  --input: rgb(241 245 249 / 14%);
+  --ring: #eb5733;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-pac-ink: var(--pac-ink);
+  --color-pac-graphite: var(--pac-graphite);
+  --color-pac-orange: var(--pac-orange);
+  --color-pac-orange-light: var(--pac-orange-light);
+  --color-pac-ember: var(--pac-ember);
+  --color-pac-paper: var(--pac-paper);
+
+  --font-sans: var(--font-plex-sans);
+  --font-serif: var(--font-source-serif);
+  --font-mono: var(--font-plex-mono);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif;
+    letter-spacing: -0.01em;
+  }
+  .font-label {
+    @apply font-mono uppercase tracking-widest text-xs;
+  }
+}
+
+/* ── Bento proximity glow ──────────────────────────────────────────────────
+   Ported from attend-v3's MagicBento, rebuilt on DS-01 tokens.
+
+   The original hardcodes `rgba(132, 0, 255, …)` against a `#120F17` field —
+   dark-only, and invisible on paper. These derive from `--primary` via
+   color-mix, so the ring re-themes with the light/dark toggle for free.
+
+   `--glow-intensity` is written per-card by BentoGrid on pointer move: 1 when
+   the pointer is within the proximity band, ramping to 0 across the fade
+   band. The ::after is masked with `mask-composite: exclude` so it paints
+   only the 1px border ring, not the card face — a lit hairline rather than a
+   glowing slab, which is what a document format can carry.
+
+   Radius is 1px to match `border-border` elsewhere; MagicBento used 6px,
+   which reads as a neon outline against DS-01's hairlines. */
+.bento-card {
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-intensity: 0;
+  --glow-radius: 18rem;
+}
+
+.bento-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    color-mix(
+        in srgb,
+        var(--primary) calc(var(--glow-intensity) * 75%),
+        transparent
+      )
+      0%,
+    color-mix(
+        in srgb,
+        var(--primary) calc(var(--glow-intensity) * 32%),
+        transparent
+      )
+      32%,
+    transparent 62%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Particles are appended imperatively by BentoCard; the halo is cheaper as a
+   pseudo-element than a second gsap-tracked node per particle. */
+.bento-particle::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
+  z-index: -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bento-card::after {
+    display: none;
+  }
+}
+
+/* ── Client-band marquee ──────────────────────────────────────────────────
+   Used by TrustBar. Deliberately CSS rather than React Bits' `LogoLoop`,
+   which doc 07 records as vendored and then removed: it was the only file
+   producing lint errors, and like every React Bits component it ignores
+   `prefers-reduced-motion`. This is a scroll that a media query can switch
+   off, with no dependency and no client component.
+
+   The track holds the list twice and travels exactly -50%, so the second
+   copy is under the cursor at the moment the first finishes and the seam is
+   invisible. Change the duplicate count and -50% together or it will jump. */
+@keyframes pac-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: pac-marquee 38s linear infinite;
+}
+
+/* Hovering pauses it, so a name someone is trying to read stops moving. */
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Fade the ends rather than cutting them off at the container edge — a hard
+   edge reads as clipped content, which is the defect doc 07 found with the
+   Aurora backdrop. */
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Without the animation the second copy would just be the same five names
+     printed twice, so it goes away entirely. */
+  .marquee-track [data-marquee-clone] {
+    display: none;
+  }
+
+  .marquee-mask {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* ── Stars background ─────────────────────────────────────────────────────
+   Ported from attend-v3. Pure CSS animation — no JS runtime, no
+   styled-components, so the star fields don't bloat the initial JS bundle.
+   The box-shadow lists are static and cached by the browser. */
+
+.stars-container {
+  position: relative;
+  width: 100%;
+  background: radial-gradient(ellipse at bottom, #17233d 0%, #0b1220 100%);
+  overflow: hidden;
+}
+
+.content-layer {
+  position: relative;
+  z-index: 10;
+}
+
+#stars {
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  box-shadow:
+    501px 811px #fff, 1450px 1324px #fff, 1093px 1780px #fff,
+    1469px 678px #fff, 904px 741px #fff, 1160px 781px #fff,
+    1841px 1962px #fff, 1630px 1667px #fff, 1788px 676px #fff,
+    367px 1734px #fff, 1343px 156px #fff, 1283px 1142px #fff,
+    1062px 378px #fff, 1395px 467px #fff, 1017px 1891px #fff,
+    137px 1114px #fff, 1767px 1403px #fff, 1543px 11px #fff,
+    1078px 181px #fff, 1189px 1574px #fff, 1697px 1551px #fff,
+    439px 472px #fff, 1491px 677px #fff, 1364px 599px #fff,
+    34px 382px #fff, 1221px 1584px #fff, 1266px 1499px #fff,
+    169px 1907px #fff, 1219px 1125px #fff, 659px 18px #fff,
+    1731px 1959px #fff, 332px 1216px #fff, 1913px 788px #fff,
+    80px 712px #fff, 326px 1605px #fff, 574px 1502px #fff,
+    473px 1653px #fff, 404px 975px #fff, 322px 1797px #fff,
+    425px 1321px #fff, 1121px 1797px #fff, 731px 647px #fff,
+    891px 1584px #fff, 1523px 109px #fff, 1379px 244px #fff,
+    865px 1064px #fff, 493px 956px #fff, 624px 1380px #fff,
+    440px 619px #fff, 1630px 767px #fff, 955px 1196px #fff;
+  animation: animStar 50s linear infinite;
+}
+#stars:after {
+  content: " ";
+  position: absolute;
+  top: 2000px;
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  box-shadow: inherit;
+}
+
+#stars2 {
+  width: 2px;
+  height: 2px;
+  background: transparent;
+  box-shadow:
+    1925px 1320px #fff, 693px 1778px #fff, 1016px 711px #fff,
+    1171px 563px #fff, 661px 1919px #fff, 1610px 44px #fff,
+    1275px 140px #fff, 1208px 1802px #fff, 1473px 1587px #fff,
+    11px 1117px #fff, 853px 1757px #fff, 1149px 937px #fff,
+    1353px 428px #fff, 270px 279px #fff, 258px 1404px #fff,
+    417px 1188px #fff, 286px 561px #fff, 393px 1765px #fff,
+    147px 881px #fff, 666px 1097px #fff, 1425px 1278px #fff,
+    806px 156px #fff, 1252px 561px #fff, 218px 52px #fff;
+  animation: animStar 100s linear infinite;
+}
+#stars2:after {
+  content: " ";
+  position: absolute;
+  top: 2000px;
+  width: 2px;
+  height: 2px;
+  background: transparent;
+  box-shadow: inherit;
+}
+
+#stars3 {
+  width: 3px;
+  height: 3px;
+  background: transparent;
+  box-shadow:
+    200px 981px #fff, 1731px 521px #fff, 132px 1039px #fff,
+    1888px 1547px #fff, 899px 1226px #fff, 1887px 580px #fff,
+    1548px 1092px #fff, 1626px 689px #fff, 254px 1072px #fff,
+    1684px 1211px #fff, 672px 1267px #fff, 939px 668px #fff,
+    1969px 645px #fff, 1126px 983px #fff, 457px 568px #fff,
+    476px 876px #fff, 829px 1896px #fff, 1364px 1846px #fff,
+    1507px 1120px #fff, 936px 1948px #fff, 1833px 832px #fff;
+  animation: animStar 150s linear infinite;
+}
+#stars3:after {
+  content: " ";
+  position: absolute;
+  top: 2000px;
+  width: 3px;
+  height: 3px;
+  background: transparent;
+  box-shadow: inherit;
+}
+
+@keyframes animStar {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-2000px); }
+}

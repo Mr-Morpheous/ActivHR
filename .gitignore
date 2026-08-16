@@ -1,0 +1,69 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+# ...except the template. It documents each variable and carries no secrets —
+# some entries do have illustrative defaults, so "names only" was never quite
+# true. The README tells you to copy it, so it has to be in the repository.
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+public/@powersync
+
+# Internal development process — kept local, never published.
+# These are working notes about how the product was built (session-by-session
+# decisions, review findings, what was tried and rejected). They are useful to
+# whoever is building, and nobody else's business.
+context-sessions/
+new-prompt/
+README.md
+
+# Specs and implementation plans. Same reasoning as above: they carry pricing
+# decisions, security findings, roadmap timing and the arguments behind them.
+#
+# THIS DOES NOT UNPUBLISH WHAT IS ALREADY PUSHED. Ten spec and plan files were
+# committed between 11 and 13 Aug 2026 to a PUBLIC repository, and remain in
+# git history for anyone who clones it. Adding a path here only stops future
+# files being added; removing the history needs a rewrite (git filter-repo)
+# and a force push, or the repository being made private. Same caveat doc 16
+# recorded when context-sessions/ was untracked.
+docs/superpowers/
+
+# Contains the audit of which advertised features do not actually exist.
+docs/product-reference.md
