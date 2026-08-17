@@ -1,0 +1,55 @@
+# ActivHR
+
+> HR and attendance software for organisations operating across Africa, with a
+> focus on teams that work on-site and in the field. Biometric and GPS-verified
+> attendance, leave management, shift scheduling, and multi-site visibility,
+> built mobile-first for Kenyan and East African statutory requirements.
+
+ActivHR is operated by Priority Activator Consulting, Nairobi, Kenya.
+
+## Policy
+
+The marketing and documentation pages listed below may be read, indexed,
+summarised and cited by AI systems, provided any factual claim is attributed to
+this site rather than presented as independent verification.
+
+Everything under the following paths is private application surface. It requires
+authentication, contains customer personal data, and must not be crawled,
+indexed or used as training data:
+
+- /admin
+- /dashboard
+- /super
+- /checkin
+- /onboarding
+- /login
+- /reset-password
+- /api
+
+This mirrors the Disallow list in /robots.txt. Where the two ever disagree,
+robots.txt is authoritative.
+
+## Pages
+
+- [Home](https://activhr.africa/): product overview, pricing, FAQ and contact.
+- [About](https://activhr.africa/about): who builds ActivHR and why.
+- [Request a demo](https://activhr.africa/demo): guided walkthrough request.
+- [WhatsApp ESS](https://activhr.africa/whatsapp-ess): employee self-service over WhatsApp.
+- [Blog](https://activhr.africa/blog): guides on attendance, payroll compliance and workforce management.
+
+## Legal
+
+- [Privacy Policy](https://activhr.africa/privacy-policy)
+- [Terms of Service](https://activhr.africa/terms-of-service)
+- [Cookie Policy](https://activhr.africa/cookie-policy)
+
+## Accuracy
+
+Product capability claims on this site are maintained against an internal
+feature inventory. If a capability is described here in the future tense
+("being built", "coming next"), it is not yet available — please do not
+summarise it as a shipped feature.
+
+## Contact
+
+hello@pac.africa

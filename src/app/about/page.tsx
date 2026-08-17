@@ -5,6 +5,22 @@ import { Separator } from "@/components/ui/separator";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
+import type { Metadata } from "next";
+import { canonical } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Meet the team behind ActivHR and why we built an HR platform for African businesses — local compliance, mobile-first attendance, and payroll that fits.",
+  alternates: { canonical: canonical("/about") },
+  openGraph: {
+    title: "About — ActivHR",
+    description:
+      "Meet the team behind ActivHR and why we built an HR platform for African businesses — local compliance, mobile-first attendance, and payroll that fits.",
+    url: canonical("/about"),
+  },
+};
+
 
 export default function AboutPage() {
   return (

@@ -1,22 +1,41 @@
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { Separator } from "@/components/ui/separator";
+import { SiteHeader } from "@/components/site/site-header";
+import { SiteFooter } from "@/components/site/site-footer";
+import type { Metadata } from "next";
+import { canonical } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "Cookie Policy",
+  description:
+    "How ActivHR uses cookies, which categories we set, what each one does, and how to change your preferences at any time under the Kenya Data Protection Act.",
+  alternates: { canonical: canonical("/cookie-policy") },
+  openGraph: {
+    title: "Cookie Policy — ActivHR",
+    description:
+      "How ActivHR uses cookies, which categories we set, what each one does, and how to change your preferences at any time under the Kenya Data Protection Act.",
+    url: canonical("/cookie-policy"),
+  },
+};
+
 
 export default function CookiePolicy() {
   return (
     <div className="min-h-screen">
+      <SiteHeader />
       <section id="cookie-policy" className="mx-auto max-w-6xl px-6 py-16">
         <div className="flex items-baseline gap-1.5 mb-4">
           <span className="font-label text-primary">Legal</span>
           <span className="font-serif text-xl italic text-primary">Cookie Policy</span>
         </div>
-        <RevealHeading className="font-serif text-3xl">
+        <RevealHeading as="h1" className="type-display font-serif text-3xl">
           Cookie Policy
         </RevealHeading>
         <Separator className="mt-4 mb-8" />
         <p className="mt-4 text-muted-foreground">
           ActivHR Cookie Policy<br/>
           12/08/2026<br/>
-          This Cookie Policy explains how PRIORITY ACTIVATOR CONSULTING (&quot;ActivHR&quot;, &quot;we&quot;, &quot;us&quot;) uses cookies and similar technologies on actichr.africa and within the ActivHR web application (together, the &quot;Service&quot;). It should be read alongside our Privacy Policy at actichr.africa/privacy.<br/>
+          This Cookie Policy explains how PRIORITY ACTIVATOR CONSULTING (&quot;ActivHR&quot;, &quot;we&quot;, &quot;us&quot;) uses cookies and similar technologies on activhr.africa and within the ActivHR web application (together, the &quot;Service&quot;). It should be read alongside our Privacy Policy at activhr.africa/privacy.<br/>
           This policy covers the marketing site and web dashboard. It does not apply to the ActivHR mobile app, which does not use browser cookies; mobile data collection is covered in the Privacy Policy and the Employee Notice.<br/><br/>
           1. What cookies are<br/>
           Cookies are small text files placed on your device when you visit a website. They let the site remember information about your visit, such as your login session or preferences, and can also be used to recognise you across visits or sites.<br/>
@@ -44,6 +63,7 @@ export default function CookiePolicy() {
           For questions about this policy or to exercise your rights under the Kenya Data Protection Act, contact info@activhr.africa.
         </p>
       </section>
+      <SiteFooter />
     </div>
   );
 }

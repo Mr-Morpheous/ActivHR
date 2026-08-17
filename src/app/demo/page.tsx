@@ -6,6 +6,22 @@ import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { DemoForm } from "@/app/demo/demo-form";
+import type { Metadata } from "next";
+import { canonical } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "Request a Demo",
+  description:
+    "Book a personalised ActivHR walkthrough scoped to your headcount, sites and statutory requirements. A specialist responds within two business hours.",
+  alternates: { canonical: canonical("/demo") },
+  openGraph: {
+    title: "Request a Demo — ActivHR",
+    description:
+      "Book a personalised ActivHR walkthrough scoped to your headcount, sites and statutory requirements. A specialist responds within two business hours.",
+    url: canonical("/demo"),
+  },
+};
+
 
 export default function DemoPage() {
   return (

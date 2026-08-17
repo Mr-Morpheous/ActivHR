@@ -12,3 +12,6 @@ Disallow: /checkin
 Disallow: /reset-password
 
 Sitemap: https://activhr.africa/sitemap.xml
+
+# AI crawler policy, mirroring the Disallow list above.
+# https://activhr.africa/llms.txt

@@ -28,6 +28,18 @@ import { GlowCard } from "@/components/site/glow-card";
 import { Reveal } from "@/components/motion/reveal";
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { BlurLabel } from "@/components/motion/blur-label";
+import type { Metadata } from "next";
+import { canonical } from "@/lib/site";
+
+/**
+ * Title and description are inherited from the root layout, which describes
+ * the product — for the homepage that is correct. The canonical is NOT
+ * inherited any more, so it is declared here explicitly.
+ */
+export const metadata: Metadata = {
+  alternates: { canonical: canonical("/") },
+};
+
 
 /**
  * ⚠️ UNRESOLVED: THIS ARRAY ADVERTISES MORE THAN THE PRODUCT DOES.

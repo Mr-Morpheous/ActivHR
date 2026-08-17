@@ -1,26 +1,61 @@
 import { MetadataRoute } from "next";
 
-const SITE_URL = "https://activhr.africa";
+import { SITE_URL } from "@/lib/site";
+import { publishedPosts } from "@/lib/posts";
+
+/**
+ * WHAT WAS WRONG WITH THE OLD ONE
+ * ────────────────────────────────────────────────────────────────────────────
+ *  - It listed fragment URLs — "/#features", "/#pillars", "/#pricing",
+ *    "/#contact". A fragment is not a document. Search engines discard
+ *    everything after the "#", so those four entries were four duplicate
+ *    submissions of the homepage.
+ *  - It omitted /about and /blog entirely, which were also linked from nowhere
+ *    on the site — between the two, they were undiscoverable.
+ *  - It listed /login, which robots.txt disallows. Submitting a URL you have
+ *    also told crawlers not to fetch is a contradiction that shows up in Search
+ *    Console as a coverage error.
+ *  - `lastModified: new Date()` on every entry claimed every page changed on
+ *    every build, which is noise: if everything is always fresh, nothing is.
+ *
+ * Blog posts come from `lib/posts.ts`, so an unpublished post cannot appear
+ * here — the array is the single source of truth for what exists.
+ */
+
+type Entry = {
+  path: string;
+  priority: number;
+  changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
+};
+
+const PAGES: Entry[] = [
+  { path: "", priority: 1.0, changeFrequency: "weekly" },
+  { path: "/about", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/demo", priority: 0.9, changeFrequency: "monthly" },
+  { path: "/whatsapp-ess", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/blog", priority: 0.7, changeFrequency: "weekly" },
+  // Legal pages are indexable on purpose: the handbook requires them to be
+  // reachable at a stable URL without authentication, and an app-store review
+  // will fetch the privacy policy directly.
+  { path: "/privacy-policy", priority: 0.3, changeFrequency: "yearly" },
+  { path: "/terms-of-service", priority: 0.3, changeFrequency: "yearly" },
+  { path: "/cookie-policy", priority: 0.3, changeFrequency: "yearly" },
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = [
-    "",
-    "/#features",
-    "/#pillars",
-    "/#pricing",
-    "/#contact",
-    "/demo",
-    "/whatsapp-ess",
-    "/cookie-policy",
-    "/privacy-policy",
-    "/terms-of-service",
-    "/login",
-  ];
-
-  return pages.map((path) => ({
-    url: `${SITE_URL}${path}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: path === "" ? 1.0 : 0.7,
+  const pages = PAGES.map((entry) => ({
+    url: `${SITE_URL}${entry.path}`,
+    changeFrequency: entry.changeFrequency,
+    priority: entry.priority,
   }));
+
+  const posts = publishedPosts.map((post) => ({
+    url: `${SITE_URL}/blog/${post.slug}`,
+    // A real date this time — the post's own, not "now".
+    lastModified: new Date(post.date),
+    changeFrequency: "yearly" as const,
+    priority: 0.6,
+  }));
+
+  return [...pages, ...posts];
 }

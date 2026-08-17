@@ -1,22 +1,76 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { Separator } from "@/components/ui/separator";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
+import { SITE_URL } from "@/lib/site";
+import { findPost, publishedPosts } from "@/lib/posts";
 
-export default function BlogPost() {
+type Params = { params: Promise<{ slug: string }> };
+
+/**
+ * Only published slugs are pre-rendered, and `dynamicParams = false` makes
+ * anything else a 404 rather than a 200.
+ *
+ * This route used to ignore its slug entirely: `/blog/anything` rendered the
+ * biometric article with a 200, so the site published one post at an unbounded
+ * number of URLs.
+ */
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return publishedPosts.map((post) => ({ slug: post.slug }));
+}
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { slug } = await params;
+  const post = findPost(slug);
+  if (!post) return {};
+
+  return {
+    // `seoTitle` where the headline is too long for a search result; the
+    // headline itself still renders as the h1 on the page.
+    title: post.seoTitle ?? post.title,
+    description: post.excerpt,
+    alternates: { canonical: `${SITE_URL}/blog/${post.slug}` },
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: "article",
+      publishedTime: post.date,
+      url: `${SITE_URL}/blog/${post.slug}`,
+    },
+  };
+}
+
+export default async function BlogPost({ params }: Params) {
+  const { slug } = await params;
+  const post = findPost(slug);
+  if (!post) notFound();
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
 
       <article className="mx-auto max-w-3xl px-6 pt-20 pb-12">
-        <RevealHeading className="font-serif text-3xl">
-          How Biometric Attendance Eliminates Time Theft in Kenyan Workplaces
+        {/* `as="h1"`: RevealHeading defaults to h2, so this article had no h1
+            at all — the same defect the three legal pages had. */}
+        <RevealHeading as="h1" className="type-display font-serif text-3xl">
+          {post.title}
         </RevealHeading>
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4 mb-8">
-          <span>August 15, 2026</span>
+          <time dateTime={post.date}>
+            {new Date(post.date).toLocaleDateString("en-KE", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </time>
           <span>·</span>
-          <span>6 min read</span>
+          <span>{post.readTime}</span>
         </div>
 
         <Separator className="mb-8" />

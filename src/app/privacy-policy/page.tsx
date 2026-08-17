@@ -1,15 +1,34 @@
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { Separator } from "@/components/ui/separator";
+import { SiteHeader } from "@/components/site/site-header";
+import { SiteFooter } from "@/components/site/site-footer";
+import type { Metadata } from "next";
+import { canonical } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "How ActivHR collects, uses, stores and protects personal data, your rights under the Kenya Data Protection Act 2019, and how to contact us about them.",
+  alternates: { canonical: canonical("/privacy-policy") },
+  openGraph: {
+    title: "Privacy Policy — ActivHR",
+    description:
+      "How ActivHR collects, uses, stores and protects personal data, your rights under the Kenya Data Protection Act 2019, and how to contact us about them.",
+    url: canonical("/privacy-policy"),
+  },
+};
+
 
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen">
+      <SiteHeader />
       <section id="privacy-policy" className="mx-auto max-w-6xl px-6 py-16">
         <div className="flex items-baseline gap-1.5 mb-4">
           <span className="font-label text-primary">Legal</span>
           <span className="font-serif text-xl italic text-primary">Privacy Policy</span>
         </div>
-        <RevealHeading className="font-serif text-3xl">
+        <RevealHeading as="h1" className="type-display font-serif text-3xl">
           Privacy Policy
         </RevealHeading>
         <Separator className="mt-4 mb-8" />
@@ -17,7 +36,7 @@ export default function PrivacyPolicy() {
           ActivHR Privacy Policy<br/>
           12/08/2026<br/>
           This Privacy Policy explains how Priority Activator consulting (&quot;ActivHR&quot;, &quot;we&quot;, &quot;us&quot;) collects, uses, and protects personal data through ActivHR (the &quot;Service&quot;), in accordance with the Kenya Data Protection Act, 2019 (&quot;the Act&quot;).<br/>
-          This Policy applies to two groups of people, and the sections below indicate which apply to which: Client organisations that subscribe to ActivHR; Employees and other individuals (&quot;Users&quot;) whose attendance data is processed through ActivHR on behalf of a Client organisation. If you are an employee using ActivHR through your employer, please also read the ActivHR Employee Notice at actichr.africa/employee-notice, which explains your rights in plain language.<br/><br/>
+          This Policy applies to two groups of people, and the sections below indicate which apply to which: Client organisations that subscribe to ActivHR; Employees and other individuals (&quot;Users&quot;) whose attendance data is processed through ActivHR on behalf of a Client organisation. If you are an employee using ActivHR through your employer, please also read the ActivHR Employee Notice at activhr.africa/employee-notice, which explains your rights in plain language.<br/><br/>
           1. Who we are and our role<br/>
           For Client organisations, ActivHR acts as a Data Processor, processing User personal data only on the Client&apos;s instructions. The Client organisation is the Data Controller responsible for its employees&apos; data. [[PLACEHOLDER pending L1 legal opinion: confirm this characterisation applies across all deployment models before publishing]]<br/>
           For data we collect directly from Client organisations themselves, such as billing contacts and account administrator details, ActivHR acts as a Data Controller.<br/>
@@ -30,7 +49,7 @@ export default function PrivacyPolicy() {
           Location data | User, via the app | [[PLACEHOLDER: if applicable, confirm whether location is collected]]<br/>
           Biometric data | User, via the app | Fingerprint template, collected only if the Client enables biometric roll-call and the User consents<br/>
           Technical data | Automatically | Device type, app version, IP address, log data<br/>
-          Cookies | Web dashboard visitors | See our Cookie Policy at actichr.africa/cookie-policy<br/>
+          Cookies | Web dashboard visitors | See our Cookie Policy at activhr.africa/cookie-policy<br/>
           We do not collect biometric data unless biometric roll-call is enabled by the Client and the individual User has given explicit, opt-in consent. See Section 5.<br/><br/>
           3. Why we process this data<br/>
           To provide the attendance tracking and reporting features of the Service<br/>
@@ -73,6 +92,7 @@ export default function PrivacyPolicy() {
           You may also lodge a complaint directly with the Office of the Data Protection Commissioner (ODPC), Kenya.
         </p>
       </section>
+      <SiteFooter />
     </div>
   );
 }

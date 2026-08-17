@@ -4,49 +4,24 @@ import { RevealHeading } from "@/components/motion/reveal-heading";
 import { BlurLabel } from "@/components/motion/blur-label";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
+import { publishedPosts } from "@/lib/posts";
+import type { Metadata } from "next";
+import { canonical } from "@/lib/site";
 
-const POSTS = [
-  {
-    slug: "how-biometric-attendance-eliminates-time-theft",
-    title: "How Biometric Attendance Eliminates Time Theft in Kenyan Workplaces",
-    excerpt:
-      "Buddy punching and manual register manipulation cost Kenyan enterprises millions annually. Here is how biometric verification closes the gap.",
-    date: "2026-08-15",
-    readTime: "6 min read",
+export const metadata: Metadata = {
+  title: "Insights & Resources",
+  description:
+    "Practical guides on biometric attendance, Kenyan payroll compliance, geofencing for field teams, and mobile-first workforce management for HR leaders.",
+  alternates: { canonical: canonical("/blog") },
+  openGraph: {
+    title: "Insights & Resources — ActivHR",
+    description:
+      "Practical guides on biometric attendance, Kenyan payroll compliance, geofencing for field teams, and mobile-first workforce management for HR leaders.",
+    url: canonical("/blog"),
   },
-  {
-    slug: "payroll-compliance-kenya-2026",
-    title: "Payroll Compliance in Kenya 2026: PAYE, NSSF, SHA and Housing Levy",
-    excerpt:
-      "A practical guide to the four statutory deductions every Kenyan employer must compute, file and remit on time.",
-    date: "2026-08-10",
-    readTime: "8 min read",
-  },
-  {
-    slug: "mobile-geofencing-for-field-teams",
-    title: "Mobile Geofencing for Field Teams: A Security Manager's Guide",
-    excerpt:
-      "How GPS-enforced boundaries stop fake check-ins without requiring expensive hardware at every gate.",
-    date: "2026-08-05",
-    readTime: "5 min read",
-  },
-  {
-    slug: "whatsapp-ess-adoption-guide",
-    title: "WhatsApp Employee Self-Service: The Zero-Learning-Curve ESS",
-    excerpt:
-      "Why WhatsApp is the most effective ESS channel in East Africa and how to roll it out to your workforce in under a week.",
-    date: "2026-07-28",
-    readTime: "7 min read",
-  },
-  {
-    slug: "multi-site-hr-challenges",
-    title: "The 5 Hidden Costs of Multi-Site HR Without a Central Platform",
-    excerpt:
-      "Spreadsheets, phone calls and paper registers scale badly. Here is what分散ed HR operations actually cost per site.",
-    date: "2026-07-20",
-    readTime: "6 min read",
-  },
-] as const;
+};
+
+
 
 export default function BlogPage() {
   return (
@@ -75,7 +50,7 @@ export default function BlogPage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {POSTS.map((post, i) => (
+          {publishedPosts.map((post, i) => (
             <Reveal key={post.slug} delay={i * 0.08}>
               <Link href={`/blog/${post.slug}`} className="block h-full">
                 <div className="h-full rounded-xl border border-border bg-card p-6 transition-colors hover:border-primary/30">

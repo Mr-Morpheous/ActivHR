@@ -5,6 +5,22 @@ import { Separator } from "@/components/ui/separator";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
+import type { Metadata } from "next";
+import { canonical } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "WhatsApp Employee Self-Service",
+  description:
+    "Give your workforce self-service through WhatsApp — payslips, leave requests and attendance — with no app to install and no training required.",
+  alternates: { canonical: canonical("/whatsapp-ess") },
+  openGraph: {
+    title: "WhatsApp Employee Self-Service — ActivHR",
+    description:
+      "Give your workforce self-service through WhatsApp — payslips, leave requests and attendance — with no app to install and no training required.",
+    url: canonical("/whatsapp-ess"),
+  },
+};
+
 
 export default function WhatsAppESSPage() {
   return (
