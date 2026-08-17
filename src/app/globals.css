@@ -190,6 +190,18 @@
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
+  /* Tracking is a function of size, never one value for every size.
+     ────────────────────────────────────────────────────────────────────────
+     Letters read as further apart the larger they get, so display type wants
+     negative tracking and small type wants slightly positive — a single
+     figure is necessarily wrong at one end of the range. This rule spans
+     `text-xl` to `text-6xl`, so -0.01em stays as the *mid-size* default and
+     the two ends are handled by the utilities below.
+
+     The second problem was that the rule is keyed to the element. The largest
+     type on this site is not in a heading — the prices, the KPI figures and
+     the stat tiles are spans and divs — so the biggest numerals were getting
+     body tracking. `.type-figure` is what those should carry. */
   h1,
   h2,
   h3,
@@ -197,8 +209,304 @@
     @apply font-serif;
     letter-spacing: -0.01em;
   }
+
+  /* Display sizes: `text-4xl` and up, headings or not. */
+  .type-display {
+    letter-spacing: -0.025em;
+  }
+
+  /* Large numerals — prices, KPIs, stat tiles, calculator results.
+     Bundles the treatment the site had been repeating by hand
+     (`font-serif … leading-none tabular-nums`) so a live-updating figure
+     can't be added without tabular digits again. */
+  .type-figure {
+    @apply font-serif tabular-nums;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  /* Small text buys legibility back with a little positive tracking. */
+  .type-caption {
+    letter-spacing: 0.01em;
+  }
+
   .font-label {
     @apply font-mono uppercase tracking-widest text-xs;
+  }
+}
+
+/* ── Disclosure (details / summary) ───────────────────────────────────────
+   The FAQ's answers were appearing instantaneously while the `+` beside them
+   spent 200ms rotating into an `×`. Both halves report the same event, so
+   landing them on different frames is the one thing multimodal feedback must
+   not do — the rotation drew attention to the jump.
+
+   Animated in CSS rather than by converting the FAQ into a React accordion.
+   `site/faq.tsx` is a server component with no JavaScript at all, and a list
+   of seven questions is not worth a client bundle. `::details-content` is the
+   platform's own answer to this, and `interpolate-size: allow-keywords` is
+   what makes `block-size: auto` animatable.
+
+   Where the selector isn't supported, the disclosure opens instantly — which
+   is exactly what it did before — and the `@supports` gate withholds the icon
+   rotation too, so the two halves stay in agreement in *both* directions
+   rather than only where the animation lands. */
+:root {
+  interpolate-size: allow-keywords;
+}
+
+@supports selector(details::details-content) {
+  .pac-details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size 200ms ease-out,
+      content-visibility 200ms;
+    transition-behavior: allow-discrete;
+  }
+
+  .pac-details[open]::details-content {
+    block-size: auto;
+  }
+
+  .pac-details-icon {
+    transition: transform 200ms ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pac-details::details-content {
+    transition: none;
+  }
+
+  .pac-details-icon {
+    transition: none;
+  }
+}
+
+/* ── Translucent chrome ───────────────────────────────────────────────────
+   A floating functional layer, not an opaque strip that consumes 4rem of the
+   viewport. Content scrolls underneath and stays legible through it.
+
+   The blur is 20px with saturation lifted, rather than Tailwind's bare
+   `backdrop-blur` (8px, no saturate): under-blurred translucency reads as a
+   dirty window instead of a material, and the saturation is what stops
+   colours going grey as they pass behind it. 72% opacity, not the 90% the
+   header was using — at 90% there is nothing to see through, so the blur was
+   paying for an effect it never delivered.
+
+   No border here on purpose. Which edge catches the light depends on where
+   the surface sits, so the hairline belongs to the caller: a bottom-anchored
+   sheet lights its top edge, and top-anchored chrome uses `.pac-scroll-edge`
+   below. */
+.pac-material {
+  background: color-mix(in srgb, var(--background) 72%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Where floating chrome meets content, fade the boundary instead of ruling a
+   line across it. A permanent 1px border is drawn even at scroll-top, where
+   there is nothing underneath to separate from — so the separation arrives
+   with the content that needs it. */
+.pac-scroll-edge {
+  border-bottom: 1px solid transparent;
+  transition: border-color 200ms ease-out, box-shadow 200ms ease-out;
+}
+
+.pac-scroll-edge[data-scrolled="true"] {
+  border-bottom-color: var(--border);
+  box-shadow: 0 1px 12px color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pac-scroll-edge {
+    transition: none;
+  }
+}
+
+/* ── Theme change ─────────────────────────────────────────────────────────
+   Ink ↔ paper is the largest brightness change on the site and it happened
+   as a hard cut, which is the one thing an abrupt luminance change should
+   not be.
+
+   `disableTransitionOnChange` stays on in layout.tsx — it exists because
+   transitioning every element on the page at once is both slow and ugly, and
+   removing it would be a worse defect than the one being fixed. A view
+   transition sidesteps that entirely: it cross-fades a snapshot of the whole
+   page, so nothing has to animate individually.
+
+   `theme-toggle.tsx` only calls `startViewTransition` where it exists and
+   where motion isn't reduced. Everywhere else the swap stays instant, which
+   is the current behaviour, so this is additive. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+}
+
+/* ── Stacked bar segment ──────────────────────────────────────────────────
+   Positioned and sized with `translateX` + `scaleX` rather than `width`, so a
+   value that changes while a slider is being dragged doesn't put the browser
+   through a layout pass per frame. The segments tile by offsetting each one by
+   the sum of those before it. */
+.pac-bar-segment {
+  transition: transform 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pac-bar-segment {
+    transition: none;
+  }
+}
+
+/* ── Reduced transparency ─────────────────────────────────────────────────
+   Reduced motion was already honoured across the site; this signal and the
+   contrast one below were not honoured anywhere. Translucency is a comfort
+   and legibility cost for some people, and the answer is a frostier, solid
+   surface — not a thinner blur. */
+@media (prefers-reduced-transparency: reduce) {
+  .pac-material {
+    background: var(--background);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* ── Increased contrast ───────────────────────────────────────────────────
+   Near-solid surfaces with a defined edge, so a floating layer is
+   unambiguously a layer rather than something inferred from a blur. */
+@media (prefers-contrast: more) {
+  .pac-material {
+    background: var(--background);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 1px solid var(--foreground);
+  }
+
+  .pac-scroll-edge[data-scrolled="true"] {
+    border-bottom-color: var(--foreground);
+  }
+}
+
+/* ── Range input ──────────────────────────────────────────────────────────
+   `appearance-none` on an `<input type="range">` removes the native control
+   *including its thumb*, and `accent-color` stops applying the moment it is
+   gone. The ROI calculator's three sliders were therefore rendering as bare
+   grey bars with no handle in every WebKit/Blink browser — no grab affordance
+   at all on the one draggable surface the marketing site has.
+
+   The two vendor pseudo-elements cannot share a selector list: an
+   unrecognised pseudo-element invalidates the entire rule, so
+   `::-webkit-slider-thumb, ::-moz-range-thumb { … }` styles nothing in
+   either engine. They are duplicated below deliberately.
+
+   The track is drawn by these rules rather than by the input's own
+   `background`, so the hit area can be taller than the visible bar — a 8px
+   input is a poor touch target for the site's stated mobile-first audience.
+
+   `--range-pct` is written inline per input by the calculator. Filling the
+   travelled portion is the continuous-feedback rule: the control should show
+   its value during the drag, not only report it in the label beside it.
+
+   The press state is the point rather than decoration. Feedback belongs on
+   pointer-down, not on release, so the thumb grows the instant it is
+   grabbed. */
+.pac-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1.5rem;
+  background: transparent;
+  cursor: grab;
+}
+
+.pac-range:active {
+  cursor: grabbing;
+}
+
+.pac-range:focus {
+  outline: none;
+}
+
+.pac-range::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    to right,
+    var(--primary) var(--range-pct, 0%),
+    var(--secondary) var(--range-pct, 0%)
+  );
+}
+
+.pac-range::-moz-range-track {
+  height: 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--secondary);
+}
+
+/* Firefox fills the travelled portion for us, so it doesn't need the
+   gradient the WebKit track is given. */
+.pac-range::-moz-range-progress {
+  height: 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+}
+
+.pac-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--background);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
+  /* (track 0.5rem − thumb 1.25rem) ÷ 2 — WebKit aligns the thumb to the top
+     of the track once the track has an explicit height. */
+  margin-top: -0.375rem;
+  transition: transform 100ms ease-out;
+}
+
+.pac-range::-moz-range-thumb {
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--background);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
+  transition: transform 100ms ease-out;
+}
+
+.pac-range:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+
+.pac-range:active::-moz-range-thumb {
+  transform: scale(1.12);
+}
+
+.pac-range:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px var(--ring);
+}
+
+.pac-range:focus-visible::-moz-range-thumb {
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px var(--ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Split for the same reason as the rules above — one selector list
+     containing both vendor thumbs would style neither. */
+  .pac-range::-webkit-slider-thumb {
+    transition: none;
+  }
+
+  .pac-range::-moz-range-thumb {
+    transition: none;
   }
 }
 

@@ -7,6 +7,7 @@ import { Check } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { RevealHeading } from "@/components/motion/reveal-heading";
+import { DURATION, SPRING } from "@/lib/motion";
 
 /**
  * Each industry carries a short spec sheet rather than a screenshot slot —
@@ -113,6 +114,18 @@ export function IndustryTabs() {
   const [active, setActive] = React.useState<string>(INDUSTRIES[0].id);
   const reduceMotion = useReducedMotion();
 
+  // Which way the underline just travelled. The new panel enters from that
+  // side, so the intermediate frames point at the outcome instead of
+  // interpolating blindly to it — a person reading the trajectory can tell
+  // where the content is coming from before it arrives.
+  const activeIndex = INDUSTRIES.findIndex((i) => i.id === active);
+  const previousIndex = React.useRef(activeIndex);
+  const direction = activeIndex >= previousIndex.current ? 1 : -1;
+
+  React.useEffect(() => {
+    previousIndex.current = activeIndex;
+  }, [activeIndex]);
+
   // Footer links deep-link straight to an industry (e.g. /#logistics). The
   // hash also matches the trigger's element id, so the browser handles the
   // scroll and this only has to select the tab.
@@ -159,7 +172,15 @@ export function IndustryTabs() {
                   <motion.span
                     layoutId="industry-tab-underline"
                     className="absolute inset-x-0 -bottom-px h-0.5 bg-primary"
-                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    // Was `{ stiffness: 420, damping: 34 }` written inline —
+                    // a damping ratio of ≈0.83 over a ≈0.31s response, which
+                    // is almost exactly Apple's published figure for a sheet.
+                    // The value was right; it just wasn't shared with anything
+                    // else, so it is now the `drawer` token. Kept as-is
+                    // because this is a travelling object with real distance
+                    // to cover, and it is the one piece of motion on this page
+                    // that already felt correct.
+                    transition={SPRING.drawer}
                   />
                 ))}
             </TabsTrigger>
@@ -168,7 +189,25 @@ export function IndustryTabs() {
 
         {INDUSTRIES.map((industry) => (
           <TabsContent key={industry.id} value={industry.id} className="pt-6">
-            <div className="grid gap-10 md:grid-cols-[1.2fr_1fr]">
+            {/* The underline used to glide between triggers while the panel
+                underneath it hard-cut, so the good motion drew attention to
+                the missing motion. Radix unmounts the inactive panels, so
+                this animates on every switch without needing AnimatePresence.
+
+                `SPRING.ui` rather than `drawer`: a tab is clicked, not thrown,
+                so there is no momentum for an overshoot to be honest about. */}
+            <motion.div
+              className="grid gap-10 md:grid-cols-[1.2fr_1fr]"
+              initial={
+                reduceMotion
+                  ? { opacity: 0 }
+                  : { opacity: 0, x: direction * 12 }
+              }
+              animate={reduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+              transition={
+                reduceMotion ? { duration: DURATION.base } : SPRING.ui
+              }
+            >
               <div>
                 <h3 className="font-display text-2xl">{industry.title}</h3>
                 <ul className="mt-5 flex flex-col gap-3">
@@ -198,7 +237,7 @@ export function IndustryTabs() {
                   </div>
                 ))}
               </dl>
-            </div>
+            </motion.div>
           </TabsContent>
         ))}
       </Tabs>

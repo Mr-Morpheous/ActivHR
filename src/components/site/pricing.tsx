@@ -46,7 +46,7 @@ export function Pricing() {
         <div className="grid gap-8 rounded-sm border-2 border-foreground bg-card p-6 md:grid-cols-[0.9fr_1.1fr] md:p-8">
           <div>
             <p className="flex items-baseline gap-2">
-              <span className="font-display text-5xl">$3</span>
+              <span className="type-figure text-5xl">$3</span>
               <span className="text-sm text-muted-foreground">
                 per employee, per month
               </span>

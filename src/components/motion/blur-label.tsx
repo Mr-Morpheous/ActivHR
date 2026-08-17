@@ -4,6 +4,7 @@ import * as React from "react";
 import { useReducedMotion } from "motion/react";
 
 import BlurText from "@/components/reactbits/BlurText";
+import { DURATION } from "@/lib/motion";
 
 /**
  * Word-by-word blur reveal for a short plain-string label (the mono
@@ -46,7 +47,10 @@ export function BlurLabel({
       delay={delay}
       animateBy="words"
       direction="bottom"
-      stepDuration={0.3}
+      // Per-word step, so this is a `base` state change rather than a
+      // `reveal` — the label as a whole still takes `delay × words` to
+      // arrive. Was 0.3s, chosen in isolation.
+      stepDuration={DURATION.base}
     />
   );
 }

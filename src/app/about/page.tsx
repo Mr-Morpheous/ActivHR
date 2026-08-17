@@ -21,7 +21,7 @@ export default function AboutPage() {
           <RevealHeading
             as="h1"
             delay={0.15}
-            className="mt-5 font-serif text-4xl leading-[1.05] sm:text-5xl md:text-6xl"
+            className="type-display mt-5 font-serif text-4xl leading-[1.05] sm:text-5xl md:text-6xl"
           >
             Built for the speed of <span className="italic text-primary sm:whitespace-nowrap">African business</span>
           </RevealHeading>

@@ -3,6 +3,8 @@
 import * as React from "react";
 import { motion, useReducedMotion } from "motion/react";
 
+import { DURATION, EASE } from "@/lib/motion";
+
 const MOTION_TAG = {
   h1: motion.h1,
   h2: motion.h2,
@@ -53,7 +55,7 @@ export function RevealHeading({
       initial={{ opacity: 0, y: 14, filter: "blur(10px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: DURATION.reveal, delay, ease: EASE.out }}
     >
       {children}
     </MotionTag>

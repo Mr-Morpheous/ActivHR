@@ -4,8 +4,32 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * PRESS FEEDBACK — why `active:` is in the base and not left to callers.
+ *
+ * Until this was added the button had a hover state and nothing else, and a
+ * search for `active:` across `src/` returned no matches at all: no control
+ * anywhere in the product acknowledged being pressed. On a pointer that is
+ * survivable, because hover already signals "this is live". On touch — which
+ * is the audience this product is built for — there was no feedback of any
+ * kind between the tap and whatever happened next, so every button felt dead
+ * for as long as the work behind it took.
+ *
+ * The rule being followed is that feedback belongs on pointer-*down*, not on
+ * release. `:active` is the platform's pointer-down state, so it costs one
+ * declaration and needs no JavaScript.
+ *
+ * 0.97 and 100ms are deliberately small: this should register as the surface
+ * yielding under a finger, not as an animation playing. `transition-colors`
+ * became an explicit property list because the transform has to be included
+ * or the scale would snap.
+ *
+ * `motion-reduce:active:scale-100` keeps the press *acknowledged* under
+ * reduced motion — the colour change still fires — while removing the travel.
+ * Reduced motion means less vestibular movement, not less feedback.
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium tracking-tight transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium tracking-tight transition-[transform,background-color,border-color,color,opacity] duration-100 ease-out active:scale-[0.97] motion-reduce:active:scale-100 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   {
     variants: {
       variant: {

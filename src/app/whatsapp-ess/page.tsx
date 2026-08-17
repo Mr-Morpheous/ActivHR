@@ -21,7 +21,7 @@ export default function WhatsAppESSPage() {
           <RevealHeading
             as="h1"
             delay={0.15}
-            className="mt-5 font-serif text-5xl leading-[1.05] md:text-6xl"
+            className="type-display mt-5 font-serif text-5xl leading-[1.05] md:text-6xl"
           >
             HR in Every <span className="whitespace-nowrap italic text-primary">Pocket</span>
           </RevealHeading>

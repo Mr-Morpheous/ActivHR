@@ -48,11 +48,18 @@ export function FAQ() {
 
       <Reveal>
         {FAQS.map(([question, answer]) => (
-          <details key={question} className="group border-b border-border py-4">
+          <details
+            key={question}
+            className="pac-details group border-b border-border py-4"
+          >
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-sm text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
               {question}
+              {/* The transition lives in `.pac-details-icon` (globals.css),
+                  not here, so it is gated on the same `@supports` check as
+                  the answer's height animation — the icon and the answer
+                  either both move or both don't. */}
               <Plus
-                className="size-4 shrink-0 text-primary transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none"
+                className="pac-details-icon size-4 shrink-0 text-primary group-open:rotate-45"
                 strokeWidth={2}
               />
             </summary>

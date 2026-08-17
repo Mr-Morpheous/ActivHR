@@ -25,7 +25,7 @@ export default function DemoPage() {
             <RevealHeading
               as="h1"
               delay={0.15}
-              className="mt-5 font-serif text-4xl leading-[1.05] sm:text-5xl md:text-6xl"
+              className="type-display mt-5 font-serif text-4xl leading-[1.05] sm:text-5xl md:text-6xl"
             >
               See ActivHR in action, built for{" "}
               <span className="italic text-primary sm:whitespace-nowrap">

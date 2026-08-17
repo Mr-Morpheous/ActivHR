@@ -29,7 +29,7 @@ export function StatTiles({
             i > 0 && "border-l border-border"
           )}
         >
-          <div className="font-serif text-4xl leading-none tabular-nums">
+          <div className="type-figure text-4xl">
             <StatValue value={tile.value} unit={tile.unit} />
           </div>
           <div className="font-label mt-2 text-muted-foreground">

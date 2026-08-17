@@ -157,7 +157,7 @@ export default function Home() {
         <section className="mx-auto max-w-6xl px-6 pt-20 pb-12">
           <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
             <span className="font-label text-primary">Africa&apos;s Adaptive HR and Talent Platform</span>
-            <h1 className="mt-5 font-serif text-4xl leading-[1.05] sm:text-5xl md:text-6xl">
+            <h1 className="type-display mt-5 font-serif text-4xl leading-[1.05] sm:text-5xl md:text-6xl">
               HRMIS Built for the{" "}
               <span className="italic text-primary sm:whitespace-nowrap">
                 Speed of African Business
@@ -370,7 +370,7 @@ export default function Home() {
                       weight. leading-none stops the 4xl line box adding leading
                       the baseline then has to fight. */}
                   <div className="mt-4 flex items-baseline justify-center gap-1.5">
-                    <span className="font-serif text-4xl leading-none">{plan.price}</span>
+                    <span className="type-figure text-4xl">{plan.price}</span>
                     <span className="text-sm text-muted-foreground">{plan.period}</span>
                   </div>
                 </div>
@@ -502,7 +502,7 @@ export default function Home() {
             text="Ready when you are"
             className="font-label text-primary"
           />
-          <RevealHeading className="mt-4 max-w-xl font-serif text-4xl">
+          <RevealHeading className="type-display mt-4 max-w-xl font-serif text-4xl">
             Ready to modernize your HR operations?
           </RevealHeading>
           <p className="mt-4 max-w-lg text-pac-paper/70">

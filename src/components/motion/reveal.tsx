@@ -4,6 +4,7 @@ import * as React from "react";
 import { useReducedMotion } from "motion/react";
 
 import AnimatedContent from "@/components/reactbits/AnimatedContent";
+import { DURATION } from "@/lib/motion";
 
 /**
  * Scroll-entry reveal. Thin wrapper over React Bits' AnimatedContent that
@@ -19,7 +20,7 @@ export function Reveal({
   children,
   delay = 0,
   distance = 24,
-  duration = 0.6,
+  duration = DURATION.reveal,
   className,
 }: {
   children: React.ReactNode;
