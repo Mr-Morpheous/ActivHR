@@ -9,6 +9,7 @@ import {
   contactLimiter,
   retryAfterMessage,
 } from "@/lib/rate-limit";
+import { turnstileMessage, verifyTurnstile } from "@/lib/turnstile";
 
 /**
  * The landing page's pilot enquiry form.
@@ -57,10 +58,21 @@ export type ContactInput = {
   message?: string;
 };
 
+/** Per-field messages, keyed to the input name so a form can place each one. */
+export type ContactFieldErrors = Partial<Record<keyof ContactInput, string>>;
+
+export type ContactResult = {
+  /** Form-level problem: rate limit, verification, storage failure. */
+  error?: string;
+  /** Field-level problems, rendered next to the field that caused them. */
+  fieldErrors?: ContactFieldErrors;
+  success?: true;
+};
+
 export async function submitContactRequest(
   input: ContactInput,
-  _turnstileToken?: string | null
-): Promise<{ error?: string; success?: true }> {
+  turnstileToken?: string | null
+): Promise<ContactResult> {
   const ip = clientIpFrom(await headers());
 
   const quota = await contactLimiter.check(ip);
@@ -70,21 +82,56 @@ export async function submitContactRequest(
     };
   }
 
-  const clean = (value: string | undefined, max: number) =>
-    (value ?? "").trim().slice(0, max);
-
-  const fullName = clean(input.fullName, LIMITS.fullName);
-  const workEmail = clean(input.workEmail, LIMITS.workEmail).toLowerCase();
-  const company = clean(input.company, LIMITS.company);
-  const phone = clean(input.phone, LIMITS.phone);
-  const teamSize = clean(input.teamSize, LIMITS.teamSize);
-  const message = clean(input.message, LIMITS.message);
-
-  if (!fullName) return { error: "Enter your name." };
-  if (!EMAIL_PATTERN.test(workEmail)) {
-    return { error: "Enter a valid work email address." };
+  // The token used to arrive here as `_turnstileToken` and go straight in the
+  // bin, which made the widget on the form decorative. Checked before any
+  // validation work so a scripted request costs as little as possible.
+  const challenge = await verifyTurnstile(turnstileToken, ip);
+  if (!challenge.ok) {
+    return { error: turnstileMessage(challenge.reason) };
   }
-  if (!company) return { error: "Enter your company name." };
+
+  // Trim but DO NOT truncate. This used to `.slice(0, max)`, which silently
+  // accepted oversized input and stored a cut-off version — the caller was
+  // told nothing, and the record was quietly wrong. Over-length input is now a
+  // field error, so the person can see it and fix it.
+  const trim = (value: string | undefined) => (value ?? "").trim();
+
+  const fullName = trim(input.fullName);
+  const workEmail = trim(input.workEmail).toLowerCase();
+  const company = trim(input.company);
+  const phone = trim(input.phone);
+  const teamSize = trim(input.teamSize);
+  const message = trim(input.message);
+
+  const fieldErrors: ContactFieldErrors = {};
+
+  const tooLong = (
+    field: keyof ContactInput,
+    value: string,
+    max: number,
+    label: string
+  ) => {
+    if (value.length > max) {
+      fieldErrors[field] = `${label} is too long — ${max} characters maximum.`;
+    }
+  };
+
+  if (!fullName) fieldErrors.fullName = "Enter your name.";
+  else tooLong("fullName", fullName, LIMITS.fullName, "Your name");
+
+  if (!workEmail) fieldErrors.workEmail = "Enter your work email address.";
+  else if (!EMAIL_PATTERN.test(workEmail)) {
+    fieldErrors.workEmail = "That doesn't look like an email address.";
+  } else tooLong("workEmail", workEmail, LIMITS.workEmail, "Your email address");
+
+  if (!company) fieldErrors.company = "Enter your company name.";
+  else tooLong("company", company, LIMITS.company, "Your company name");
+
+  tooLong("phone", phone, LIMITS.phone, "That phone number");
+  tooLong("teamSize", teamSize, LIMITS.teamSize, "That team size");
+  tooLong("message", message, LIMITS.message, "Your message");
+
+  if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
 
   // Fails closed with the same generic message the insert failure uses: a
   // missing key is an operator problem, and the public form must not explain

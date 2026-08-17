@@ -1,13 +1,11 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { BlurLabel } from "@/components/motion/blur-label";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
+import { DemoForm } from "@/app/demo/demo-form";
 
 export default function DemoPage() {
   return (
@@ -69,90 +67,7 @@ export default function DemoPage() {
           </div>
 
           <div className="p-6">
-            <form className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium mb-1">First Name *</label>
-                  <input
-                    type="text"
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    placeholder="Jane"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Last Name *</label>
-                  <input
-                    type="text"
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    placeholder="Doe"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Work Email *</label>
-                <input
-                  type="email"
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  placeholder="jane@company.com"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Company Name *</label>
-                <input
-                  type="text"
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  placeholder="Acme Ltd"
-                  required
-                />
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Workforce Size *</label>
-                  <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" required>
-                    <option value="">Select range</option>
-                    <option>1–50</option>
-                    <option>51–300</option>
-                    <option>300+</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Primary HR Focus</label>
-                  <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    <option value="">Select focus</option>
-                    <option>Attendance & Time Tracking</option>
-                    <option>Payroll & Statutory Compliance</option>
-                    <option>Employee Onboarding</option>
-                    <option>Performance Management</option>
-                    <option>Mobile ESS / WhatsApp</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Message (optional)</label>
-                <textarea
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  rows={4}
-                  placeholder="Tell us about your team, locations, or specific challenges..."
-                />
-              </div>
-
-              <Button type="submit" size="lg" className="w-full">
-                Request Demo <ArrowRight />
-              </Button>
-
-              <p className="text-xs text-muted-foreground text-center">
-                By submitting, you agree to our{" "}
-                <Link href="/privacy-policy" className="underline">Privacy Policy</Link> and{" "}
-                <Link href="/terms-of-service" className="underline">Terms of Service</Link>.
-              </p>
-            </form>
+            <DemoForm />
           </div>
         </div>
       </section>

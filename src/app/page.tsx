@@ -28,15 +28,49 @@ import { Reveal } from "@/components/motion/reveal";
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { BlurLabel } from "@/components/motion/blur-label";
 
+/**
+ * ⚠️ UNRESOLVED: THIS ARRAY ADVERTISES MORE THAN THE PRODUCT DOES.
+ *
+ * `docs/product-reference.md` is the project's own source of truth for what is
+ * built, and it records a claims audit done on 14 Aug 2026 that removed
+ * overstated features from this site. Several have since come back here.
+ * Checked against that document on 18 Aug 2026, the following are NOT in its
+ * "Built and working" table:
+ *
+ *   - "Statutory Engine — PAYE, NSSF, SHA, Housing Levy auto-computed and
+ *     filed". "Filed" is a particularly strong claim.
+ *   - "Multi-Currency Support"
+ *   - "Instant Payslips … delivered via email or WhatsApp"
+ *   - The entire "Strategic Appraisal & Performance" pillar: OKRs, Balanced
+ *     Scorecards, 360-degree feedback, 9-box talent matrix.
+ *
+ * Two items were removed outright rather than flagged, because the doc is
+ * unambiguous about them: the document-vault bullets (no upload code exists
+ * anywhere) and the overtime multipliers, which that doc lists under "❌ Not
+ * built — and no longer advertised" and which had reappeared here.
+ *
+ * The rest is left as-is deliberately. Rewriting the four pillars is a decision
+ * about what the product claims to be, which belongs to the product owner, not
+ * to whoever is next editing this file. Resolve it with them and delete this
+ * comment — do not let it become furniture.
+ */
 const PILLARS = [
   {
     icon: Users,
     group: "Core HR & Digital Onboarding",
     lead: "Centralize personnel records in a secure cloud vault. Send digital contracts and automate onboarding task checklists for new hires.",
+    /* "Self-Service Onboarding … document uploads before Day 1" and "Smart
+       Document Vault — store contracts, certifications and ID docs with
+       automated expiration alerts" were removed on 18 Aug 2026. There is no
+       upload path in the product at all: no Storage bucket, no file input, no
+       `.upload(` call anywhere in src/ or supabase/. Both bullets described
+       software that does not exist.
+
+       ⚠️ The rest of this array still needs a claims audit against
+       docs/product-reference.md — see the note above PILLARS. */
     features: [
-      ["Self-Service Onboarding", "Digital welcome packets, tax ID collection, and document uploads before Day 1"],
-      ["Smart Document Vault", "Store contracts, certifications, and ID docs with automated expiration alerts"],
-      ["Custom Org Charts", "Dynamically render reporting structures and department hierarchies"],
+      ["Self-Serve Org Setup", "Create your organization, first site and admin account in one pass"],
+      ["Custom Org Levels", "Name your own hierarchy and set how far each level can see"],
     ],
   },
   {
@@ -45,7 +79,11 @@ const PILLARS = [
     lead: "Real-time clocking via biometric devices, mobile geo-fencing, or offline field sync for remote and multi-site workforces.",
     features: [
       ["Dynamic Shift Scheduling", "Create complex rosters with automatic overlap conflict detection"],
-      ["Overtime Engine", "Pre-configure multipliers (1.5x, 2.0x) against statutory working hours"],
+      // "Overtime Engine — pre-configure multipliers (1.5x, 2.0x)" removed
+      // 18 Aug 2026. docs/product-reference.md lists `overtime rules` under
+      // "❌ Not built — and no longer advertised", removed from this site on
+      // 14 Aug. It had come back. This is restoring a settled decision.
+      ["Geofenced Clock-In", "GPS-verified attendance scoped to each site, with an offline queue"],
       ["Automated Leave Management", "Custom leave types with automatic balance accrual and multi-tier approvals"],
     ],
   },
@@ -282,18 +320,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Executive Testimonial */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <Separator className="mb-10" />
-        <blockquote className="font-serif text-2xl italic leading-relaxed text-center max-w-4xl mx-auto">
-          &ldquo;Managing HR across multiple branches used to absorb weeks of manual administrative work every month. ActivHR gave us absolute visibility over attendance, streamlined our monthly payroll, and made self-service effortless for our team on their phones.&rdquo;
-        </blockquote>
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          — Director of Human Capital, Fast-Growing Regional Enterprise
-        </p>
-        <Separator className="mt-10" />
-      </section>
+      {/* Executive Testimonial — REMOVED 18 Aug 2026.
+          It was a single quote attributed to "Director of Human Capital,
+          Fast-Growing Regional Enterprise": no name, no company, no permission
+          on file, and nothing in the repo or docs to substantiate it. An
+          anonymous testimonial persuades nobody who is paying attention and is
+          a liability if it was written in-house.
 
+          To restore: three named, permissioned reviews with Review or
+          AggregateRating JSON-LD, per the launch handbook's G10. One anonymous
+          quote does not meet that bar, which is why this is deleted rather than
+          commented out and left to rot. */}
       {/* Product Modules Deep-Dive */}
       <section id="features" className="mx-auto max-w-6xl px-6 py-16">
         <RevealHeading className="font-serif text-3xl">
@@ -415,11 +452,17 @@ export default function Home() {
                 <Shield className="size-6 text-primary" strokeWidth={1.5} />
                 <h3 className="font-label text-primary">Enterprise Security</h3>
               </div>
+              {/* "ISO 27001 aligned" removed 18 Aug 2026: there is no
+                  certification, no audit and no documented control mapping
+                  behind it, and a standards claim is the kind a prospect's
+                  procurement team will ask to see evidence for. The encryption
+                  line is now attributed to the platform that actually provides
+                  it rather than stated as if it were implemented here — there is
+                  no column-level encryption in any migration. */}
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>AES-256 bit encryption at rest</li>
-                <li>TLS 1.3 in transit</li>
+                <li>Encrypted at rest and in transit by the hosting platform</li>
+                <li>Row-level security scoping every record to its organization</li>
                 <li>Role-based access permissions</li>
-                <li>ISO 27001 aligned</li>
               </ul>
             </SpotlightCard>
           </Reveal>

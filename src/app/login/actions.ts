@@ -10,6 +10,7 @@ import {
   passwordResetLimiter,
   retryAfterMessage,
 } from "@/lib/rate-limit";
+import { turnstileMessage, verifyTurnstile } from "@/lib/turnstile";
 
 /**
  * Auth as server actions.
@@ -60,6 +61,31 @@ const MIN_PASSWORD_LENGTH = 10;
  */
 const INVALID_CREDENTIALS = "That email and password don't match an account.";
 
+/**
+ * Rate limit, then verify the Turnstile challenge.
+ *
+ * The token used to arrive as `_turnstileToken` and be discarded — the widget
+ * rendered on /login, the user solved it, and nothing ever asked Cloudflare
+ * whether the answer was real. See `lib/turnstile.ts` for the fail-open policy
+ * (it stays open only where the widget itself is not deployed).
+ *
+ * Order matters: the rate limiter is cheap and local, `siteverify` is a network
+ * round trip, so a flood costs us the limiter and not an outbound request each.
+ */
+async function guardAuth(
+  identifier: string,
+  turnstileToken?: string | null
+): Promise<string | null> {
+  const limited = await limitAuth(identifier);
+  if (limited) return limited;
+
+  const ip = clientIpFrom(await headers());
+  const challenge = await verifyTurnstile(turnstileToken, ip);
+  if (!challenge.ok) return turnstileMessage(challenge.reason);
+
+  return null;
+}
+
 async function limitAuth(identifier: string): Promise<string | null> {
   const ip = clientIpFrom(await headers());
 
@@ -80,15 +106,15 @@ async function limitAuth(identifier: string): Promise<string | null> {
   return null;
 }
 
-export async function signIn(email: string, password: string, _turnstileToken?: string | null): Promise<AuthResult> {
+export async function signIn(email: string, password: string, turnstileToken?: string | null): Promise<AuthResult> {
   const address = email?.trim().toLowerCase() ?? "";
 
   if (!EMAIL_PATTERN.test(address) || !password) {
     return { error: INVALID_CREDENTIALS };
   }
 
-  const limited = await limitAuth(address);
-  if (limited) return { error: limited };
+  const blocked = await guardAuth(address, turnstileToken);
+  if (blocked) return { error: blocked };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
@@ -111,7 +137,7 @@ export async function signIn(email: string, password: string, _turnstileToken?: 
   return { role: await destinationFor() };
 }
 
-export async function signUp(email: string, password: string, _turnstileToken?: string | null): Promise<AuthResult> {
+export async function signUp(email: string, password: string, turnstileToken?: string | null): Promise<AuthResult> {
   const address = email?.trim().toLowerCase() ?? "";
 
   if (!EMAIL_PATTERN.test(address)) {
@@ -121,8 +147,8 @@ export async function signUp(email: string, password: string, _turnstileToken?: 
     return { error: `Passwords must be at least ${MIN_PASSWORD_LENGTH} characters.` };
   }
 
-  const limited = await limitAuth(address);
-  if (limited) return { error: limited };
+  const blocked = await guardAuth(address, turnstileToken);
+  if (blocked) return { error: blocked };
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
@@ -161,7 +187,7 @@ const SITE_URL = process.env.SITE_URL?.trim();
 
 export async function requestPasswordReset(
   email: string,
-  _turnstileToken?: string | null
+  turnstileToken?: string | null
 ): Promise<{ error?: string; sent?: true }> {
   const address = email?.trim().toLowerCase() ?? "";
 
@@ -181,6 +207,11 @@ export async function requestPasswordReset(
     const retry = Math.max(byIp.retryAfterMs, byAddress.retryAfterMs);
     return { error: `Too many reset requests. ${retryAfterMessage(retry)}` };
   }
+
+  // Verified here too, for the same reason the limits are tighter on this path:
+  // every accepted call sends mail to an address the caller picked.
+  const challenge = await verifyTurnstile(turnstileToken, ip);
+  if (!challenge.ok) return { error: turnstileMessage(challenge.reason) };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(
