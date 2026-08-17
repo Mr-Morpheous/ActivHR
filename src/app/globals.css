@@ -57,33 +57,70 @@
 }
 
 .dark {
-  --background: #131313;
+  /* Cool-tinted, and with the card actually separated from the field.
+     ────────────────────────────────────────────────────────────────────
+     Two problems, both left over from the orange era:
+
+     1. These were warm neutrals (#131313 / #1a1a1a / #1f1f1f) while `:root`
+        is a slate ramp (#0f172a / #f8fafc / #f1f5f9). Cards therefore read
+        slightly warm against blue accents.
+     2. `--card` sat 7 points of luminance from `--background`, which is
+        below the threshold where an unlit card edge reads as an edge — the
+        cards looked flat and borderless at rest, and only appeared on
+        hover when the spotlight lit them.
+
+     Now on a slate ramp with ~9% separation between field and card, so a
+     card is legible as a surface before you touch it. Deliberately still
+     dark: this is an ink field, not a grey one. */
+  --background: #0e1116;
   --foreground: #f1f5f9;
 
-  --card: #1a1a1a;
+  --card: #181d26;
   --card-foreground: #f1f5f9;
 
-  --popover: #1a1a1a;
+  --popover: #181d26;
   --popover-foreground: #f1f5f9;
 
-  --primary: #eb5733;
-  --primary-foreground: #131313;
+  /* Blue, not orange.
+     ────────────────────────────────────────────────────────────────────
+     The brand moved from warm orange to cool blue in `:root`, and this
+     block was never converted with it — it kept `#eb5733` for primary,
+     accent and ring. Because `defaultTheme` is "dark" (layout.tsx), that
+     meant almost every visitor saw the BLUE logo mark and wordmark sitting
+     next to ORANGE buttons, links, and heading accents. The two themes were
+     advertising different brands.
 
-  --secondary: #1f1f1f;
+     The `--pac-*` tokens are not overridden here, so they already resolved
+     to the blue values from `:root` — which is why `bg-pac-*` utilities and
+     `text-primary` disagreed with each other in dark mode specifically.
+
+     Lightened one step (blue-500 rather than the blue-600 used on paper)
+     because a mid-blue goes muddy against #131313, and kept the dark
+     foreground this block already used for its accent — light-accent +
+     dark-text is the pattern the dark theme was built around, so this is a
+     recolour, not a redesign. Contrast on the primary button is ~7.4:1.
+     Decided 17 Aug when the blue design was made canonical. */
+  --primary: #3b82f6;
+  --primary-foreground: #0f172a;
+
+  --secondary: #1e242e;
   --secondary-foreground: #f1f5f9;
 
-  --muted: #1f1f1f;
-  --muted-foreground: #a3a3a3;
+  --muted: #1e242e;
+  --muted-foreground: #94a3b8;
 
-  --accent: #eb5733;
-  --accent-foreground: #131313;
+  --accent: #3b82f6;
+  --accent-foreground: #0f172a;
 
   --destructive: #ef4444;
   --destructive-foreground: #f1f5f9;
 
-  --border: rgb(241 245 249 / 10%);
-  --input: rgb(241 245 249 / 14%);
-  --ring: #eb5733;
+  /* Border lifted 10% → 14%: at 10% against the old low-contrast card the
+     hairline was effectively invisible, which is most of why the cards read
+     as floating text rather than as cards. */
+  --border: rgb(226 232 240 / 14%);
+  --input: rgb(226 232 240 / 18%);
+  --ring: #3b82f6;
 }
 
 @theme inline {
@@ -117,6 +154,27 @@
   --font-sans: var(--font-plex-sans);
   --font-serif: var(--font-source-serif);
   --font-mono: var(--font-plex-mono);
+
+  /* `font-display` is used in 24 places across src/ and, until this line, was
+     defined nowhere — so every one of those elements silently fell back to
+     the body sans. That includes the KPI figures on /admin, the leave-approvals
+     heading and the check-in widget, i.e. it was not a marketing-only defect.
+
+     How it got that way: the 2026-08-14 marketing rewrite renamed `font-serif`
+     → `font-display` ahead of swapping the display face to Archivo. The face
+     swap was then reverted (Source Serif 4 is back in layout.tsx) without the
+     class names being reverted with it, leaving the token dangling.
+
+     Pointed at the serif deliberately: that is what these elements rendered as
+     before the rename.
+
+     SETTLED 17 Aug 2026 — this is permanent, not a stopgap. The product owner
+     chose to keep the blue design that is live, which supersedes the 14 Aug
+     marketing rewrite that would have moved the display face to Archivo.
+     Source Serif 4 is the display face. `@fontsource-variable/archivo` is
+     installed and imported nowhere and can be uninstalled. See
+     context-sessions/22. */
+  --font-display: var(--font-source-serif);
 
   --radius-sm: calc(var(--radius) - 2px);
   --radius-md: var(--radius);
@@ -390,4 +448,48 @@
 @keyframes animStar {
   from { transform: translateY(0px); }
   to { transform: translateY(-2000px); }
+}
+
+/* ── The starfield is switched off where it costs more than it gives ──────
+   Measured, not assumed. A mobile Lighthouse run on a production build
+   scored performance 68 with 5,780 ms of total blocking time — and the
+   largest single category was STYLE & LAYOUT at 5,100 ms, ahead of script
+   evaluation, on a page whose biggest JS chunk is 54 KB. So this was never
+   a bundle problem.
+
+   Why this is the cost: each of the three layers carries ~50 `box-shadow`
+   points, and each has an `:after` that inherits the whole list — about 300
+   shadow points in total. The transform itself is compositor-friendly, but
+   the layer it moves is 2000px tall and has to be rasterised with every one
+   of those shadows, continuously, for ever. That is expensive on a desktop
+   GPU and punitive on a phone.
+
+   Three switches, coarsest first:
+     - reduced motion: the animation stops, per the site-wide contract.
+     - coarse pointer / small screen: the animation stops as well. It is an
+       ambient background behind a contact form; nobody scrolls to the
+       bottom of a phone page to watch the stars drift.
+     - small screen also drops the third layer and every `:after`, which
+       removes roughly half the shadow points from the raster pass while
+       leaving a still starfield that looks essentially identical.
+
+   Desktop keeps the full effect. */
+@media (prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px) {
+  #stars,
+  #stars2,
+  #stars3,
+  #stars::after,
+  #stars2::after,
+  #stars3::after {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  #stars3,
+  #stars::after,
+  #stars2::after,
+  #stars3::after {
+    display: none;
+  }
 }

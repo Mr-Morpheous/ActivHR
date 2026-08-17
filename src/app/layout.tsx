@@ -1,5 +1,5 @@
 import { CookieConsent } from "@/components/site/cookie-consent";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 // Self-hosted brand typefaces (see DS-01 §02 Typography in use).
@@ -52,6 +52,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://activhr.africa",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

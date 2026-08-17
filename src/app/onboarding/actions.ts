@@ -18,12 +18,40 @@ function isCoord(value: unknown, max: number): value is number {
   return typeof value === "number" && Number.isFinite(value) && Math.abs(value) <= max;
 }
 
+/**
+ * Read-only pre-check so the onboarding wizard can reject a bad code before
+ * someone fills out the rest of the form. Not the enforcement boundary —
+ * `provisionOrganization` re-validates the same code inside the RPC, which
+ * is the only place that can't be bypassed by calling PostgREST directly.
+ */
+export async function validateAccessCode(accessCode: string) {
+  const supabase = await createClient();
+
+  const code = accessCode.trim();
+  if (!code) {
+    return { ok: false, reason: "Enter your access code." };
+  }
+
+  const { data, error } = await supabase
+    .rpc("validate_access_code", { access_code: code })
+    .maybeSingle<{ ok: boolean; reason: string | null }>();
+
+  if (error) {
+    return { ok: false, reason: error.message };
+  }
+
+  return { ok: data?.ok ?? false, reason: data?.reason ?? undefined };
+}
+
 export async function provisionOrganization(
   orgName: string,
   adminName: string,
   /** Where staff will clock in. Required: it used to default to Nairobi, so
    *  the first clock-in failed for every tenant based anywhere else. */
   site: { name: string; lat: number; lng: number; radiusM: number },
+  /** Single-use, email-bound code from /super/access-codes. Re-validated
+   *  inside create_organization_for_self — this is the actual gate. */
+  accessCode: string,
   /** Optional starting ladder. Omitted or unknown means no levels are seeded,
    *  which is the pre-hierarchy behaviour and stays fully supported. */
   presetKey?: string
@@ -70,6 +98,11 @@ export async function provisionOrganization(
     return { error: `Keep names under ${MAX_NAME_LENGTH} characters.` };
   }
 
+  const code = accessCode.trim();
+  if (!code) {
+    return { error: "An access code is required to create an organization." };
+  }
+
   const { error } = await supabase.rpc("create_organization_for_self", {
     org_name: org,
     // Passed explicitly so the roster shows a real name. The RPC used to
@@ -81,6 +114,10 @@ export async function provisionOrganization(
     // first clock-in always failed with nothing on screen explaining why.
     site_lat: site.lat,
     site_lng: site.lng,
+    // Required as of 0031. The RPC re-validates this itself — that's the
+    // actual gate, since it's SECURITY DEFINER and reachable directly over
+    // PostgREST regardless of what this action checks first.
+    access_code: code,
     site_name: siteName,
     site_radius_m: radiusM,
   });

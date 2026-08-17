@@ -14,9 +14,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
-import { Reveal } from "@/components/motion/reveal";
-import { RevealHeading } from "@/components/motion/reveal-heading";
-import { BlurLabel } from "@/components/motion/blur-label";
 import { HeroThreads } from "@/components/site/hero-threads";
 import { CtaTexture } from "@/components/site/cta-texture";
 import { SiteHeader } from "@/components/site/site-header";
@@ -24,8 +21,12 @@ import { StatTiles } from "@/components/site/stat-tiles";
 import { ContactForm } from "@/components/site/contact-form";
 import { TrustBar } from "@/components/site/trust-bar";
 import { FAQ } from "@/components/site/faq";
-import { ROICalculator } from "@/components/site/roi-calculator";
 import { SiteFooter } from "@/components/site/site-footer";
+import { ROICalculator } from "@/components/site/roi-calculator";
+import { GlowCard } from "@/components/site/glow-card";
+import { Reveal } from "@/components/motion/reveal";
+import { RevealHeading } from "@/components/motion/reveal-heading";
+import { BlurLabel } from "@/components/motion/blur-label";
 
 const PILLARS = [
   {
@@ -155,20 +156,13 @@ export default function Home() {
         <HeroThreads />
         <section className="mx-auto max-w-6xl px-6 pt-20 pb-12">
           <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-            <BlurLabel
-              text="Africa's Adaptive HR and Talent Platform"
-              className="font-label text-primary"
-            />
-            <RevealHeading
-              as="h1"
-              delay={0.15}
-              className="mt-5 font-serif text-5xl leading-[1.05] md:text-6xl"
-            >
+            <span className="font-label text-primary">Africa&apos;s Adaptive HR and Talent Platform</span>
+            <h1 className="mt-5 font-serif text-4xl leading-[1.05] sm:text-5xl md:text-6xl">
               HRMIS Built for the{" "}
-              <span className="whitespace-nowrap italic text-primary">
+              <span className="italic text-primary sm:whitespace-nowrap">
                 Speed of African Business
               </span>
-            </RevealHeading>
+            </h1>
 
             <p className="mt-6 max-w-xl text-muted-foreground">
               Automate multi-country payroll, simplify biometric and field attendance, and engage your hybrid workforce with an intuitive, mobile-first HRMIS designed for local compliance and global scale.
@@ -194,10 +188,14 @@ export default function Home() {
           <div className="mt-16 grid gap-4 md:grid-cols-3">
             <StatTiles
               className="md:col-span-3"
+              // Labels are uppercase mono at text-xs, the least forgiving type
+              // on the page. The previous versions each carried a parenthetical
+              // list and ran to three cramped lines; that detail belongs in the
+              // sections below, not under a number.
               tiles={[
-                { value: "1,240", label: "Employees across 4 Regional Hubs (Nairobi, Lagos, Kampala, Kigali)" },
-                { value: "100%", label: "Tax & Statutory Compliant (PAYE, NSSF, SHA, Housing Levy)" },
-                { value: "96.4%", label: "Signed-in Today (Biometric, Mobile Geo-fencing & WhatsApp ESS)" },
+                { value: "1,240", label: "Employees across four regional hubs" },
+                { value: "100%", label: "Statutory compliant, filed on time" },
+                { value: "96.4%", label: "Signed in today across every site" },
               ]}
             />
           </div>
@@ -208,56 +206,58 @@ export default function Home() {
 
       {/* The 4 Pillars */}
       <section id="pillars" className="mx-auto max-w-6xl px-6 py-16">
-        <RevealHeading className="font-serif text-3xl">
-          The 4 Pillars of <span className="italic text-primary">ActivHR</span>
-        </RevealHeading>
+        <h2 className="font-serif text-3xl">The 4 Pillars of <span className="italic text-primary">ActivHR</span></h2>
         <Separator className="mt-4 mb-10" />
 
         <div className="grid gap-4 md:grid-cols-2">
           {PILLARS.map(({ icon: Icon, ...pillar }, i) => (
-            <Reveal key={pillar.group} delay={(i % 2) * 0.1} className="h-full">
-              <SpotlightCard className="group/card h-full">
-                <div className="flex items-center gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-primary/10 text-primary transition-colors duration-300 group-hover/card:bg-primary group-hover/card:text-primary-foreground">
-                    <Icon className="size-4" strokeWidth={1.75} />
+            <GlowCard key={pillar.group} className="group/card h-full">
+              <div className="flex items-center gap-3">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-primary/10 text-primary transition-colors duration-300 group-hover/card:bg-primary group-hover/card:text-primary-foreground">
+                  <Icon className="size-4" strokeWidth={1.75} />
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-mono text-xs text-muted-foreground">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="font-label text-primary">{pillar.group}</h3>
-                  </div>
+                  <h3 className="font-label text-primary">{pillar.group}</h3>
                 </div>
+              </div>
 
-                <p className="mt-4 font-serif text-xl leading-snug sm:min-h-14">
-                  {pillar.lead}
-                </p>
+              {/* min-h fits the LONGEST lead (three lines at this size), so the
+                  rule below starts at the same y in every card. It was min-h-14
+                  — 56px against a ~83px three-line block — so any card whose
+                  lead ran to three lines pushed its divider down and the rules
+                  visibly stopped lining up across the two columns. */}
+              <p className="mt-4 font-serif text-xl leading-snug sm:min-h-[5.25rem]">
+                {pillar.lead}
+              </p>
 
-                <dl className="mt-6 border-t-2 border-foreground/80">
-                  {pillar.features.map(([name, description]) => (
-                    <div
-                      key={name}
-                      className="border-b border-border py-3 last:border-0 sm:grid sm:grid-cols-[minmax(0,9.5rem)_1fr] sm:gap-4"
-                    >
-                      <dt className="text-sm font-medium">{name}</dt>
-                      <dd className="mt-0.5 text-sm text-muted-foreground sm:mt-0">
-                        {description}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </SpotlightCard>
-            </Reveal>
+              <dl className="mt-6 border-t-2 border-foreground/80">
+                {pillar.features.map(([name, description]) => (
+                  <div
+                    key={name}
+                    className="border-b border-border py-3 last:border-0 sm:grid sm:grid-cols-[minmax(0,11rem)_1fr] sm:gap-4"
+                  >
+                    {/* 11rem, up from 9.5: at the old width "Self-Service
+                        Onboarding" and "Automated Leave Management" wrapped
+                        while their neighbours didn't, so the term column read
+                        ragged down the card. */}
+                    <dt className="text-sm font-medium leading-snug">{name}</dt>
+                    <dd className="mt-0.5 text-sm leading-snug text-muted-foreground sm:mt-0">
+                      {description}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </GlowCard>
           ))}
         </div>
       </section>
 
       {/* Pain vs Transformation Matrix */}
       <section className="mx-auto max-w-6xl px-6 py-16">
-        <RevealHeading className="font-serif text-3xl">
-          The <span className="italic text-primary">Legacy HR Nightmare</span> vs The ActivHR{" "}
-          <span className="italic text-primary">Transformation</span>
-        </RevealHeading>
+        <h2 className="font-serif text-3xl">The <span className="italic text-primary">Legacy HR Nightmare</span> vs The ActivHR <span className="italic text-primary">Transformation</span></h2>
         <Separator className="mt-4 mb-10" />
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -285,14 +285,12 @@ export default function Home() {
       {/* Executive Testimonial */}
       <section className="mx-auto max-w-6xl px-6 py-16">
         <Separator className="mb-10" />
-        <Reveal>
-          <blockquote className="font-serif text-2xl italic leading-relaxed text-center max-w-4xl mx-auto">
-            &ldquo;Managing HR across multiple branches used to absorb weeks of manual administrative work every month. ActivHR gave us absolute visibility over attendance, streamlined our monthly payroll, and made self-service effortless for our team on their phones.&rdquo;
-          </blockquote>
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            — Director of Human Capital, Fast-Growing Regional Enterprise
-          </p>
-        </Reveal>
+        <blockquote className="font-serif text-2xl italic leading-relaxed text-center max-w-4xl mx-auto">
+          &ldquo;Managing HR across multiple branches used to absorb weeks of manual administrative work every month. ActivHR gave us absolute visibility over attendance, streamlined our monthly payroll, and made self-service effortless for our team on their phones.&rdquo;
+        </blockquote>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          — Director of Human Capital, Fast-Growing Regional Enterprise
+        </p>
         <Separator className="mt-10" />
       </section>
 
@@ -353,12 +351,26 @@ export default function Home() {
         <div className="grid gap-6 md:grid-cols-3">
           {PRICING_PLANS.map((plan, i) => (
             <Reveal key={plan.name} delay={i * 0.1}>
-              <SpotlightCard className={`h-full ${plan.highlighted ? "border-primary" : ""}`}>
+              <SpotlightCard
+                className={`h-full ${plan.highlighted ? "border-primary ring-1 ring-primary/30" : ""}`}
+              >
                 <div className="text-center">
                   <h3 className="font-label text-primary">{plan.name}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{plan.tagline}</p>
-                  <div className="mt-4">
-                    <span className="font-serif text-4xl">{plan.price}</span>
+                  {/* Fixed height: the three taglines are one line each at
+                      desktop but wrap at tablet, and without this the price
+                      below sat at a different height in each card. */}
+                  <p className="mt-2 min-h-10 text-sm text-muted-foreground">
+                    {plan.tagline}
+                  </p>
+                  {/* items-baseline, not two inline spans. "KES 320" and
+                      "Custom" have very different widths and the period ran
+                      along the big number's own line box, so the small text
+                      floated off its baseline — most obvious on the Enterprise
+                      card, where "Custom" and "Contact Sales" are close in
+                      weight. leading-none stops the 4xl line box adding leading
+                      the baseline then has to fight. */}
+                  <div className="mt-4 flex items-baseline justify-center gap-1.5">
+                    <span className="font-serif text-4xl leading-none">{plan.price}</span>
                     <span className="text-sm text-muted-foreground">{plan.period}</span>
                   </div>
                 </div>
@@ -372,7 +384,11 @@ export default function Home() {
                   ))}
                 </ul>
 
-                <div className="mt-8">
+                {/* mt-auto: the card is `h-full` in a stretch row, so a plan
+                    with shorter content used to leave its dead space BELOW the
+                    button rather than above it, and the three CTAs drifted out
+                    of line. This pins them to the card floor. */}
+                <div className="mt-auto pt-8">
                   <Link href="/login?mode=sign-up" className="block">
                     <Button size="lg" className="w-full" variant={plan.highlighted ? "default" : "outline"}>
                       {plan.cta}

@@ -54,7 +54,10 @@ export function OrgLevelsForm({ levels }: { levels: OrgLevel[] }) {
   // rather than after. The server check is the one that counts.
   const scopeTooWide = scopeReachesBeyondTier(scope, tier);
 
-  async function run(label: string, fn: () => Promise<{ error?: string }>) {
+  async function run(
+    label: string,
+    fn: () => Promise<{ error?: string; success?: true }>
+  ) {
     setPending(label);
     setError(null);
     setNotice(null);

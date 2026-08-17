@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Reveal } from "@/components/motion/reveal";
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { Separator } from "@/components/ui/separator";
 import { SiteHeader } from "@/components/site/site-header";

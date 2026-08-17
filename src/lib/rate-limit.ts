@@ -34,64 +34,16 @@ const store = POSTGRES_AVAILABLE
 
 const memoryStore = new Map<string, { count: number; resetTime: number }>();
 
-/** Extract client IP from Next.js headers. */
-export function clientIpFrom(headers: Headers): string {
-  const vercel = headers.get("x-vercel-forwarded-for");
-  if (vercel) {
-    const ip = vercel.split(",")[0]?.trim();
-    if (ip) return rateLimitKeyForIp(ip);
-  }
-
-  const forwarded = headers.get("x-forwarded-for");
-  if (forwarded) {
-    const ip = forwarded.split(",")[0]?.trim();
-    if (ip) return rateLimitKeyForIp(ip);
-  }
-
-  const realIp = headers.get("x-real-ip");
-  if (realIp) {
-    const ip = realIp.trim();
-    if (ip) return rateLimitKeyForIp(ip);
-  }
-
-  return "unknown";
-}
-
-/** Collapse an IP address to a rate-limit bucket key.
+/**
+ * Key derivation lives in `rate-limit-key.ts`, which imports nothing.
  *
- * IPv4 keys on the full address.
- * IPv6 collapses to its /64 so one host with many addresses does not get
- * unlimited fresh buckets.
- * Unknown/empty strings become the literal "unknown" bucket.
+ * It was moved there so `node --test` can load it: this file imports the
+ * Postgres store, which imports @supabase/supabase-js, so the whole chain was
+ * unloadable under Node's ESM resolver and `rate-limit.test.mts` had been
+ * failing at import — taking twelve IPv6 and header-precedence assertions with
+ * it. Re-exported here so every existing call site keeps working unchanged.
  */
-export function rateLimitKeyForIp(rawIp: string): string {
-  const ip = (rawIp ?? "").trim();
-  if (!ip || ip === "unknown") return "unknown";
-
-  // Strip zone id and brackets from IPv6
-  const cleaned = ip.replace(/%.*$/, "").replace(/^\[|\]$/g, "");
-
-  if (cleaned.includes(":")) {
-    // IPv6: collapse to /64
-    const parts = cleaned.split(":");
-    if (parts.length >= 4) {
-      return `${parts[0]}:${parts[1]}:${parts[2]}:${parts[3]}::/64`;
-    }
-    return cleaned;
-  }
-
-  // IPv4
-  return cleaned;
-}
-
-/** Format retry-after milliseconds into a human-readable message. */
-export function retryAfterMessage(retryAfterMs: number): string {
-  if (retryAfterMs <= 0) return "Please try again in a moment.";
-  const seconds = Math.ceil(retryAfterMs / 1000);
-  if (seconds < 60) return `Please try again in ${seconds} second${seconds > 1 ? "s" : ""}.`;
-  const minutes = Math.ceil(seconds / 60);
-  return `Please try again in ${minutes} minute${minutes > 1 ? "s" : ""}.`;
-}
+export { clientIpFrom, rateLimitKeyForIp, retryAfterMessage } from "./rate-limit-key";
 
 /** Create a rate limiter with the given key prefix, window, and max requests. */
 export function createLimiter(keyPrefix: string, windowMs: number, maxRequests: number) {

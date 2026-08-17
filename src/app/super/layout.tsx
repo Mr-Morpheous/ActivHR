@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft, KeyRound, ShieldCheck } from "lucide-react";
 
 import { getEmployeeContext } from "@/lib/supabase/employee";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -49,6 +49,13 @@ export default async function SuperLayout({
               className="font-label inline-flex items-center gap-1.5 rounded-sm text-muted-foreground transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
             >
               Billing
+            </Link>
+            <Link
+              href="/super/access-codes"
+              className="font-label inline-flex items-center gap-1.5 rounded-sm text-muted-foreground transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <KeyRound className="size-3.5" />
+              Access codes
             </Link>
             <Link
               href="/admin"

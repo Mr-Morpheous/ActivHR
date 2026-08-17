@@ -4,14 +4,75 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Crosshair } from "lucide-react";
 
-import { provisionOrganization } from "./actions";
+import { provisionOrganization, validateAccessCode } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PRESETS, TIER_LABELS, SCOPE_LABELS } from "@/lib/org-levels";
 
+/**
+ * Step 1 of the wizard below. A short-lived UX check only — the RPC behind
+ * `provisionOrganization` re-validates the same code as the actual gate, so
+ * there's no meaningful way to bypass this by skipping straight to step 2.
+ */
+function AccessCodeStep({ onValid }: { onValid: (code: string) => void }) {
+  const [code, setCode] = React.useState("");
+  const [checking, setChecking] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = code.trim();
+    if (!trimmed) return;
+
+    setChecking(true);
+    setError(null);
+    try {
+      const result = await validateAccessCode(trimmed);
+      if (!result.ok) {
+        setError(result.reason ?? "That access code isn't valid.");
+        return;
+      }
+      onValid(trimmed);
+    } catch {
+      setError("We couldn't check that code. Please try again.");
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="accessCode">Access code</Label>
+        <Input
+          id="accessCode"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder="ACTIVHR-XXXXXX"
+          autoComplete="off"
+          autoFocus
+          required
+        />
+        <p className="text-xs text-muted-foreground">
+          Creating an organization requires a code from your ActivHR contact.
+          Don&apos;t have one? Reach us at hello@pac.africa.
+        </p>
+      </div>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
+      <Button type="submit" disabled={checking || !code.trim()}>
+        {checking && <Loader2 className="animate-spin" />}
+        Continue
+      </Button>
+    </form>
+  );
+}
+
 export function OnboardingForm() {
   const router = useRouter();
+  const [accessCode, setAccessCode] = React.useState<string | null>(null);
   const [orgName, setOrgName] = React.useState("");
   const [fullName, setFullName] = React.useState("");
   // Defaults to the shape most tenants turn out to have, and every option is
@@ -65,6 +126,7 @@ export function OnboardingForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!accessCode) return;
     setLoading(true);
     setError(null);
 
@@ -78,6 +140,7 @@ export function OnboardingForm() {
           lng: Number(lng),
           radiusM: Number(radius),
         },
+        accessCode,
         presetKey
       );
 
@@ -99,6 +162,10 @@ export function OnboardingForm() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (!accessCode) {
+    return <AccessCodeStep onValid={setAccessCode} />;
   }
 
   return (

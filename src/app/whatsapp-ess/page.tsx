@@ -50,7 +50,7 @@ export default function WhatsAppESSPage() {
               </div>
               <div>
                 <span className="text-primary font-medium">ActivHR Bot:</span>
-                <div className="mt-2 whitespace-pre-wrap text-foreground">
+                <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`👋 Hello {{Employee_First_Name}}! Welcome to ActivHR Self-Service ({{Company_Name}}).
 
 How can I assist you today? Reply with a number or keyword:
@@ -74,7 +74,7 @@ How can I assist you today? Reply with a number or keyword:
         </RevealHeading>
         <Separator className="mt-4 mb-10" />
 
-        <div className="grid gap-8">
+        <div className="grid gap-8 [&>*]:min-w-0">
           {/* Flow 1: Payslips & Financials */}
           <Reveal>
             <SpotlightCard className="h-full">
@@ -84,7 +84,7 @@ How can I assist you today? Reply with a number or keyword:
                 <div><span className="text-muted-foreground">User:</span> 1</div>
                 <div>
                   <span className="text-primary font-medium">ActivHR Bot:</span>
-                  <div className="mt-2 whitespace-pre-wrap text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`📄 Payslip & Financial Services
 Please select an option:
 1A — Download Latest Payslip (PDF)
@@ -96,14 +96,14 @@ Please select an option:
                 <div><span className="text-muted-foreground">User:</span> 1A</div>
                 <div>
                   <span className="text-primary font-medium">ActivHR Bot:</span>
-                  <div className="mt-2 whitespace-pre-wrap text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`🔒 For security, please enter the 4-digit PIN sent to your registered mobile number:`}
                   </div>
                 </div>
                 <div><span className="text-muted-foreground">User:</span> 4821</div>
                 <div>
                   <span className="text-primary font-medium">ActivHR Bot:</span>
-                  <div className="mt-2 whitespace-pre-wrap text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`✅ Authentication Successful! Here is your {{Month_Year}} Payslip (Password protected with your National ID number):
 
 📄 Payslip_{{Employee_ID}}_{{Month_Year}}.pdf (Attached Document)
@@ -124,7 +124,7 @@ Reply 0 to return to the Main Menu.`}
                 <div><span className="text-muted-foreground">User:</span> 2</div>
                 <div>
                   <span className="text-primary font-medium">ActivHR Bot:</span>
-                  <div className="mt-2 whitespace-pre-wrap text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`🌴 Leave & Time Off Portal
 
 📊 Your Current Balances:
@@ -141,21 +141,21 @@ Reply with:
                 <div><span className="text-muted-foreground">User:</span> 2A</div>
                 <div>
                   <span className="text-primary font-medium">ActivHR Bot:</span>
-                  <div className="mt-2 whitespace-pre-wrap text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`Please enter your Leave Start Date in DD/MM/YYYY format (e.g., 01/09/2026):`}
                   </div>
                 </div>
                 <div><span className="text-muted-foreground">User:</span> 01/09/2026</div>
                 <div>
                   <span className="text-primary font-medium">ActivHR Bot:</span>
-                  <div className="mt-2 whitespace-pre-wrap text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`Enter your Leave End Date in DD/MM/YYYY format:`}
                   </div>
                 </div>
                 <div><span className="text-muted-foreground">User:</span> 05/09/2026</div>
                 <div>
                   <span className="text-primary font-medium">ActivHR Bot:</span>
-                  <div className="mt-2 whitespace-pre-wrap text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`You are applying for 5 Days of Annual Leave from 01/09/2026 to 05/09/2026.
 
 Reply YES to confirm and submit to your manager ({{Manager_Name}}) for approval.`}
@@ -164,7 +164,7 @@ Reply YES to confirm and submit to your manager ({{Manager_Name}}) for approval.
                 <div><span className="text-muted-foreground">User:</span> YES</div>
                 <div>
                   <span className="text-primary font-medium">ActivHR Bot:</span>
-                  <div className="mt-2 whitespace-pre-wrap text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`🎉 Submitted! Your leave request #LV-9042 has been sent to {{Manager_Name}}. We will notify you here once reviewed.`}
                   </div>
                 </div>
@@ -181,7 +181,7 @@ Reply YES to confirm and submit to your manager ({{Manager_Name}}) for approval.
                 <div><span className="text-muted-foreground">User:</span> 3</div>
                 <div>
                   <span className="text-primary font-medium">ActivHR Bot:</span>
-                  <div className="mt-2 whitespace-pre-wrap text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`📍 Field Clock-In / Out
 
 Please tap the clip icon 📎 below and select "Location" to share your current location for attendance verification.`}
@@ -190,7 +190,7 @@ Please tap the clip icon 📎 below and select "Location" to share your current 
                 <div><span className="text-muted-foreground">User:</span> (shares WhatsApp Location)</div>
                 <div>
                   <span className="text-primary font-medium">ActivHR Bot:</span>
-                  <div className="mt-2 whitespace-pre-wrap text-foreground">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-foreground">
 {`✅ Location Verified!
 • Site: Westlands Regional Office Hub
 • Timestamp: 08:02 AM, 16 Aug 2026
@@ -213,7 +213,7 @@ Please tap the clip icon 📎 below and select "Location" to share your current 
         </p>
         <Separator className="mt-4 mb-10" />
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 [&>*]:min-w-0 md:grid-cols-3">
           <Reveal>
             <SpotlightCard className="h-full">
               <div className="font-label text-primary mb-2">Script A</div>
@@ -221,7 +221,7 @@ Please tap the clip icon 📎 below and select "Location" to share your current 
               <p className="text-xs text-muted-foreground mb-4">Triggered when a direct report submits leave</p>
               <div className="font-mono text-sm text-muted-foreground">
                 <p>Recipient: Line Manager</p>
-                <p className="mt-2 whitespace-pre-wrap">{`📩 New Leave Request Pending Approval
+                <p className="mt-2 whitespace-pre-wrap break-words">{`📩 New Leave Request Pending Approval
 
 Employee: {{Employee_Name}}
 Type: Annual Leave
@@ -242,7 +242,7 @@ Reply REJECT {{Request_ID}} to decline`}</p>
               <p className="text-xs text-muted-foreground mb-4">Triggered when payroll processing completes</p>
               <div className="font-mono text-sm text-muted-foreground">
                 <p>Recipient: All Active Employees</p>
-                <p className="mt-2 whitespace-pre-wrap">{`💰 Your {{Month_Year}} Payslip is Ready!
+                <p className="mt-2 whitespace-pre-wrap break-words">{`💰 Your {{Month_Year}} Payslip is Ready!
 
 Dear {{First_Name}}, your payslip for {{Month_Year}} has been generated and processed.
 
@@ -258,7 +258,7 @@ Reply PAYSLIP to view and download your secure PDF document instantly.`}</p>
               <p className="text-xs text-muted-foreground mb-4">Published every Sunday for branch and field workers</p>
               <div className="font-mono text-sm text-muted-foreground">
                 <p>Recipient: Field & Branch Workers</p>
-                <p className="mt-2 whitespace-pre-wrap">{`📅 Weekly Roster Published
+                <p className="mt-2 whitespace-pre-wrap break-words">{`📅 Weekly Roster Published
 
 Hi {{First_Name}}, here is your schedule for the upcoming week:
 

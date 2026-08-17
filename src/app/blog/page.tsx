@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Reveal } from "@/components/motion/reveal";
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { BlurLabel } from "@/components/motion/blur-label";
-import { Separator } from "@/components/ui/separator";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 
@@ -63,9 +62,9 @@ export default function BlogPage() {
           <RevealHeading
             as="h1"
             delay={0.15}
-            className="mt-5 font-serif text-5xl leading-[1.05] md:text-6xl"
+            className="mt-5 font-serif text-4xl leading-[1.05] sm:text-5xl md:text-6xl"
           >
-            HR Leadership for <span className="whitespace-nowrap italic text-primary">African Business</span>
+            HR Leadership for <span className="italic text-primary sm:whitespace-nowrap">African Business</span>
           </RevealHeading>
 
           <p className="mt-6 max-w-xl text-muted-foreground">

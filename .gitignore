@@ -46,6 +46,12 @@ next-env.d.ts
 
 public/@powersync
 
+# Playwright MCP tool's own snapshots/screenshots when no output path is
+# given — session debugging artifacts, not project source. Also watched by
+# `next dev`'s file watcher, so leaving these accumulate triggers a
+# recompile storm on every browser_snapshot/console_messages call.
+.playwright-mcp/
+
 # Internal development process — kept local, never published.
 # These are working notes about how the product was built (session-by-session
 # decisions, review findings, what was tried and rejected). They are useful to

@@ -26,6 +26,14 @@ const eslintConfig = [
     ],
   },
   {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+    },
+  },
+  {
     // Vendored verbatim from the React Bits registry (reactbits.dev), which
     // ships looser types and dependency arrays than this project's rules
     // allow. Kept unmodified so re-pulling a component doesn't clobber local

@@ -1,7 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { rateLimitKeyForIp, clientIpFrom, retryAfterMessage } from "./rate-limit.ts";
+// Imported from the pure module, not from `rate-limit.ts`. That file pulls in
+// the Postgres store (and so @supabase/supabase-js), which Node's ESM resolver
+// cannot load under `node --test` — which is exactly why this suite was
+// silently failing at import before rate-limit-key.ts was split out.
+import { rateLimitKeyForIp, clientIpFrom, retryAfterMessage } from "./rate-limit-key.ts";
 
 const h = (entries: Record<string, string>) => new Headers(entries);
 
