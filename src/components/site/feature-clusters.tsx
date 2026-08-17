@@ -79,7 +79,11 @@ export function FeatureClusters() {
 
       <div className="grid gap-4 md:grid-cols-2">
         {CLUSTERS.map(({ icon: Icon, ...cluster }, i) => (
-          <Reveal key={cluster.group} delay={(i % 2) * 0.1} className="h-full">
+          // 60ms, not 100ms: a stagger reads as one group arriving in sequence
+          // up to about 80ms, and as separate things after it. Still keyed to
+          // column parity so the two-column grid arrives left-then-right
+          // rather than in a diagonal cascade.
+          <Reveal key={cluster.group} delay={(i % 2) * 0.06} className="h-full">
             <FeatureCard className="group/card h-full">
               <div className="flex items-center gap-3">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-primary/10 text-primary transition-colors duration-300 group-hover/card:bg-primary group-hover/card:text-primary-foreground">

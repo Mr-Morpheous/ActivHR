@@ -325,6 +325,22 @@
   }
 }
 
+/* ── Hover-only affordances ───────────────────────────────────────────────
+   A tap on a touch device fires `mouseenter` and never fires `mouseleave`, so
+   a hover effect driven by those events lights up on first tap and then stays
+   lit with no way to dismiss it. Nothing in this codebase gated for that —
+   there was no `@media (hover: hover)` anywhere — which on a mobile-first site
+   means the spotlight and glare overlays were sticking on for the rest of the
+   session after the first tap on a card.
+
+   `display: none` rather than an opacity guard, so the element is not
+   composited on devices that will never show it. */
+@media (hover: none), (pointer: coarse) {
+  .pac-hover-only {
+    display: none;
+  }
+}
+
 /* ── Theme change ─────────────────────────────────────────────────────────
    Ink ↔ paper is the largest brightness change on the site and it happened
    as a hard cut, which is the one thing an abrupt luminance change should

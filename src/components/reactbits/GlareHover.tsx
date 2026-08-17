@@ -62,7 +62,11 @@ const GlareHover: React.FC<GlareHoverProps> = ({
     // style recalculation, the reset never lands, and the glare only plays
     // on the first hover.
     void el.offsetHeight;
-    el.style.transition = `${transitionDuration}ms ease`;
+    // Named property, not a bare duration. `transition: 650ms ease` leaves
+    // transition-property at its `all` default, so every property on this
+    // overlay animates — the exact defect `transition: all` describes, just
+    // spelled as a shorthand. Only the sweep needs to move.
+    el.style.transition = `background-position ${transitionDuration}ms ease`;
     el.style.backgroundPosition = '100% 100%, 0 0';
   };
 
@@ -74,7 +78,7 @@ const GlareHover: React.FC<GlareHoverProps> = ({
       el.style.transition = 'none';
       el.style.backgroundPosition = '-100% -100%, 0 0';
     } else {
-      el.style.transition = `${transitionDuration}ms ease`;
+      el.style.transition = `background-position ${transitionDuration}ms ease`;
       el.style.backgroundPosition = '-100% -100%, 0 0';
     }
   };
@@ -106,7 +110,10 @@ const GlareHover: React.FC<GlareHoverProps> = ({
       onMouseEnter={animateIn}
       onMouseLeave={animateOut}
     >
-      <div ref={overlayRef} style={overlayStyle} />
+      {/* `pac-hover-only`: the sweep is driven by mouseenter/mouseleave, and a
+          tap on a touch device fires the first without ever firing the second,
+          so the glare stopped mid-sweep and stayed there. */}
+      <div ref={overlayRef} className="pac-hover-only" style={overlayStyle} />
       {children}
     </div>
   );

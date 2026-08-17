@@ -51,7 +51,15 @@ function SelectContent({
           // the items past the fold. Vertical scroll only — horizontal
           // would let a long site name widen the popover off-screen.
           "bg-popover text-popover-foreground relative z-50 max-h-[var(--radix-select-content-available-height)] min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-sm border border-border shadow-md",
+          // Was a pure fade. Nothing in the physical world appears from
+          // nowhere, and a popover that fades in at full size has no
+          // relationship to the control that opened it. It now scales from
+          // 95% and grows out of the trigger itself — Radix publishes the
+          // origin, so the popover expands from wherever the trigger sits
+          // rather than from its own centre.
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+          "origin-[var(--radix-select-content-transform-origin)]",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1",
           className

@@ -47,13 +47,26 @@ export function SpotlightCard({
         // Mirrors ui/card.tsx's shell exactly, so CardHeader / CardContent
         // lay out identically inside either one.
         "bg-card text-card-foreground border border-border rounded-sm flex flex-col gap-4 py-5",
-        "relative overflow-hidden transition-colors duration-300 hover:border-primary/40",
+        // 200ms, not 300ms: this is a hover state on a card, and there are
+        // seven of these on the landing page alone. Hover feedback sits in the
+        // same budget as press feedback — short enough that it reads as the
+        // card responding rather than as an animation playing.
+        "relative overflow-hidden transition-colors duration-200 ease-out hover:border-primary/40",
         className
       )}
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 transition-opacity duration-500 ease-in-out motion-reduce:hidden"
+        /* Was `duration-500 ease-in-out`. Two problems: `ease-in-out` starts
+           slow, which delays the exact frame the pointer is waiting on, and
+           500ms is more than double the budget for a hover response — the
+           spotlight arrived after the pointer had already moved on.
+           `ease-out` at 200ms tracks the pointer instead of trailing it.
+
+           `pac-hover-only` because this is driven by `mouseenter`/`mouseleave`:
+           on a touch device the first tap lit it and nothing ever turned it
+           off. */
+        className="pac-hover-only pointer-events-none absolute inset-0 transition-opacity duration-200 ease-out motion-reduce:hidden"
         style={{
           opacity,
           background: `radial-gradient(circle 22rem at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 70%)`,
