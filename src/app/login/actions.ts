@@ -80,7 +80,7 @@ async function limitAuth(identifier: string): Promise<string | null> {
   return null;
 }
 
-export async function signIn(email: string, password: string): Promise<AuthResult> {
+export async function signIn(email: string, password: string, _turnstileToken?: string | null): Promise<AuthResult> {
   const address = email?.trim().toLowerCase() ?? "";
 
   if (!EMAIL_PATTERN.test(address) || !password) {
@@ -111,7 +111,7 @@ export async function signIn(email: string, password: string): Promise<AuthResul
   return { role: await destinationFor() };
 }
 
-export async function signUp(email: string, password: string): Promise<AuthResult> {
+export async function signUp(email: string, password: string, _turnstileToken?: string | null): Promise<AuthResult> {
   const address = email?.trim().toLowerCase() ?? "";
 
   if (!EMAIL_PATTERN.test(address)) {
@@ -160,7 +160,8 @@ export async function signUp(email: string, password: string): Promise<AuthResul
 const SITE_URL = process.env.SITE_URL?.trim();
 
 export async function requestPasswordReset(
-  email: string
+  email: string,
+  _turnstileToken?: string | null
 ): Promise<{ error?: string; sent?: true }> {
   const address = email?.trim().toLowerCase() ?? "";
 

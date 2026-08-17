@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { RevealHeading } from "@/components/motion/reveal-heading";
-import { BlurLabel } from "@/components/motion/blur-label";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip } from "@/components/ui/tooltip";
 
 const COST_PER_USER_MONTHLY = 320; // KES
 const AVG_HR_ADMIN_SALARY = 120000; // KES
@@ -63,7 +64,9 @@ export function ROICalculator() {
 
             <div>
               <div className="flex justify-between mb-2 text-sm">
-                <span className="font-medium">Employee Headcount</span>
+                <Tooltip text="Total number of employees in your organization across all sites">
+                  <span className="font-medium cursor-help border-b border-dashed border-muted-foreground">Employee Headcount</span>
+                </Tooltip>
                 <span className="text-primary font-mono">{E.toLocaleString()}</span>
               </div>
               <input

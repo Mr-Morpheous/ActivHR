@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Reveal } from "@/components/motion/reveal";
 import { Wordmark } from "@/components/brand/wordmark";
+import { Turnstile } from "@/components/site/turnstile";
 
 type Mode = "sign-in" | "sign-up" | "forgot";
 
@@ -82,6 +83,7 @@ function LoginForm() {
   const [info, setInfo] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [turnstileToken, setTurnstileToken] = React.useState<string | null>(null);
 
   function switchTo(nextMode: Mode) {
     setError(null);
@@ -130,8 +132,8 @@ function LoginForm() {
 
       const result =
         mode === "sign-in"
-          ? await signIn(email, password)
-          : await signUp(email, password);
+          ? await signIn(email, password, turnstileToken ?? undefined)
+          : await signUp(email, password, turnstileToken ?? undefined);
 
       if (result.error) {
         setError(result.error);
@@ -210,9 +212,11 @@ function LoginForm() {
             )}
 
             {info && <p className="text-sm text-muted-foreground">{info}</p>}
-            {error && <p className="text-sm text-destructive">{error}</p>}
+             {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <Button type="submit" disabled={loading} className="mt-1">
+             <Turnstile onSuccess={setTurnstileToken} />
+
+             <Button type="submit" disabled={loading} className="mt-1">
               {loading && <Loader2 className="animate-spin" />}
               {copy.submit}
             </Button>

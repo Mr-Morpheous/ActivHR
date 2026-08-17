@@ -58,7 +58,8 @@ export type ContactInput = {
 };
 
 export async function submitContactRequest(
-  input: ContactInput
+  input: ContactInput,
+  _turnstileToken?: string | null
 ): Promise<{ error?: string; success?: true }> {
   const ip = clientIpFrom(await headers());
 

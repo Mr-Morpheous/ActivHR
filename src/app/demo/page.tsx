@@ -5,6 +5,7 @@ import { RevealHeading } from "@/components/motion/reveal-heading";
 import { BlurLabel } from "@/components/motion/blur-label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 
@@ -68,7 +69,7 @@ export default function DemoPage() {
           </div>
 
           <div className="p-6">
-            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium mb-1">First Name *</label>

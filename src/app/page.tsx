@@ -1,36 +1,17 @@
 import StarsBackground from "@/components/StarsBackground";
 import Link from "next/link";
 import {
-  Smartphone,
-  Fingerprint,
-  QrCode,
   ArrowRight,
   Check,
-  X,
   Users,
   DollarSign,
   ClipboardCheck,
-  Smartphone as MobileIcon,
   Shield,
   Globe,
   Clock,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { Reveal } from "@/components/motion/reveal";
@@ -42,47 +23,9 @@ import { SiteHeader } from "@/components/site/site-header";
 import { StatTiles } from "@/components/site/stat-tiles";
 import { ContactForm } from "@/components/site/contact-form";
 import { TrustBar } from "@/components/site/trust-bar";
-import { FeatureClusters } from "@/components/site/feature-clusters";
 import { FAQ } from "@/components/site/faq";
 import { ROICalculator } from "@/components/site/roi-calculator";
 import { SiteFooter } from "@/components/site/site-footer";
-
-const CAPTURE_LAYER = [
-  {
-    icon: Smartphone,
-    title: "Mobile app",
-    detail:
-      "Staff clock in from their own phone. Works offline and syncs automatically once they're back online.",
-  },
-  {
-    icon: Fingerprint,
-    title: "Biometric terminal",
-    detail: "Keep using the fingerprint or face scanners you already have on site.",
-  },
-  {
-    icon: QrCode,
-    title: "Web kiosk / QR",
-    detail: "A shared tablet at the entrance, for sites where staff don't carry a work phone.",
-  },
-] as const;
-
-const ROLES = [
-  {
-    role: "Staff",
-    can: "Clock in/out, see their own attendance and schedule, request leave",
-    cannot: "See other staff's records, edit schedules, or open the admin dashboard",
-  },
-  {
-    role: "Manager",
-    can: "Everything Staff can do, plus build shifts and approve leave — for their own site",
-    cannot: "See or manage other sites, change billing, or add devices",
-  },
-  {
-    role: "Admin",
-    can: "Full access across every site: staff, schedules, devices, billing, and reports",
-    cannot: "—",
-  },
-] as const;
 
 const PILLARS = [
   {
@@ -491,6 +434,40 @@ export default function Home() {
                 <li>Complete visibility into data modifications</li>
                 <li>Payroll run audit trails</li>
                 <li>Access event logging</li>
+              </ul>
+            </SpotlightCard>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Before / After Gallery */}
+      <section className="mx-auto max-w-6xl px-6 py-16">
+        <RevealHeading className="font-serif text-3xl">
+          Before & <span className="italic text-primary">After</span> ActivHR
+        </RevealHeading>
+        <Separator className="mt-4 mb-10" />
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <Reveal>
+            <SpotlightCard className="h-full">
+              <h3 className="font-label text-destructive mb-4">Before: Spreadsheet Chaos</h3>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li>• Attendance recorded on paper registers shared across 4 sites</li>
+                <li>• Monthly payroll took 12+ person-days to reconcile</li>
+                <li>• 15% annual staff turnover with no structured exit data</li>
+                <li>• Payslips printed, signed, and physically distributed</li>
+              </ul>
+            </SpotlightCard>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <SpotlightCard className="h-full">
+              <h3 className="font-label text-primary mb-4">After: Live, Automated Operations</h3>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li>• Biometric + mobile geo-fenced clock-ins from day one</li>
+                <li>• Payroll computed and filed in under 4 hours</li>
+                <li>• Real-time dashboards for 1,240 staff across 4 hubs</li>
+                <li>• Instant digital payslips via email and WhatsApp ESS</li>
               </ul>
             </SpotlightCard>
           </Reveal>

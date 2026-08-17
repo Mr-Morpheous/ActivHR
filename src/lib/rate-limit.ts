@@ -1,75 +1,131 @@
-import { NextRequest, NextResponse } from "next/server";
+import { createPostgresRateLimitStore } from "./rate-limit-store";
 
 /**
  * Rate limiting configuration for authentication endpoints.
- * 
- * Uses in-memory store for simplicity. For production with multiple
- * instances, replace with Upstash Redis or similar distributed store.
+ *
+ * Uses Postgres-backed durable store (migration 0030) for production.
+ * Falls back to in-memory store for local development.
  */
 
-interface RateLimitEntry {
-  count: number;
-  resetTime: number;
-}
+const POSTGRES_AVAILABLE =
+  !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const rateLimitStore = new Map<string, RateLimitEntry>();
+const store = POSTGRES_AVAILABLE
+  ? createPostgresRateLimitStore()
+  : {
+      async hit(key: string, limit: number, windowMs: number) {
+        const now = Date.now();
+        const entry = memoryStore.get(key);
+        if (!entry || now > entry.resetTime) {
+          memoryStore.set(key, { count: 1, resetTime: now + windowMs });
+          return { ok: true, remaining: limit - 1, retryAfterMs: 0 };
+        }
+        if (entry.count >= limit) {
+          return { ok: false, remaining: 0, retryAfterMs: entry.resetTime - now };
+        }
+        entry.count++;
+        return { ok: true, remaining: limit - entry.count, retryAfterMs: 0 };
+      },
+      async reset(key: string) {
+        memoryStore.delete(key);
+      },
+    };
 
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 5; // 5 attempts per minute
+const memoryStore = new Map<string, { count: number; resetTime: number }>();
 
-function getClientIdentifier(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  const ip = forwarded ? forwarded.split(",")[0]?.trim() : request.ip || "unknown";
-  return ip;
-}
-
-export function checkRateLimit(identifier: string): { allowed: boolean; remaining: number; resetTime: number } {
-  const now = Date.now();
-  const entry = rateLimitStore.get(identifier);
-
-  if (!entry || now > entry.resetTime) {
-    // New window or expired
-    rateLimitStore.set(identifier, {
-      count: 1,
-      resetTime: now + RATE_LIMIT_WINDOW_MS,
-    });
-    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetTime: now + RATE_LIMIT_WINDOW_MS };
+/** Extract client IP from Next.js headers. */
+export function clientIpFrom(headers: Headers): string {
+  const vercel = headers.get("x-vercel-forwarded-for");
+  if (vercel) {
+    const ip = vercel.split(",")[0]?.trim();
+    if (ip) return rateLimitKeyForIp(ip);
   }
 
-  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return { allowed: false, remaining: 0, resetTime: entry.resetTime };
+  const forwarded = headers.get("x-forwarded-for");
+  if (forwarded) {
+    const ip = forwarded.split(",")[0]?.trim();
+    if (ip) return rateLimitKeyForIp(ip);
   }
 
-  entry.count++;
-  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - entry.count, resetTime: entry.resetTime };
+  const realIp = headers.get("x-real-ip");
+  if (realIp) {
+    const ip = realIp.trim();
+    if (ip) return rateLimitKeyForIp(ip);
+  }
+
+  return "unknown";
 }
 
-export function applyRateLimitHeaders(
-  response: NextResponse,
-  result: { allowed: boolean; remaining: number; resetTime: number }
-): NextResponse {
-  response.headers.set("X-RateLimit-Limit", String(RATE_LIMIT_MAX_REQUESTS));
-  response.headers.set("X-RateLimit-Remaining", String(result.remaining));
-  response.headers.set("X-RateLimit-Reset", String(Math.ceil(result.resetTime / 1000)));
+/** Collapse an IP address to a rate-limit bucket key.
+ *
+ * IPv4 keys on the full address.
+ * IPv6 collapses to its /64 so one host with many addresses does not get
+ * unlimited fresh buckets.
+ * Unknown/empty strings become the literal "unknown" bucket.
+ */
+export function rateLimitKeyForIp(rawIp: string): string {
+  const ip = (rawIp ?? "").trim();
+  if (!ip || ip === "unknown") return "unknown";
 
-  if (!result.allowed) {
-    response.headers.set("Retry-After", String(Math.ceil((result.resetTime - Date.now()) / 1000)));
+  // Strip zone id and brackets from IPv6
+  const cleaned = ip.replace(/%.*$/, "").replace(/^\[|\]$/g, "");
+
+  if (cleaned.includes(":")) {
+    // IPv6: collapse to /64
+    const parts = cleaned.split(":");
+    if (parts.length >= 4) {
+      return `${parts[0]}:${parts[1]}:${parts[2]}:${parts[3]}::/64`;
+    }
+    return cleaned;
   }
 
-  return response;
+  // IPv4
+  return cleaned;
 }
 
-export function isRateLimited(request: NextRequest): NextResponse | null {
-  const identifier = getClientIdentifier(request);
-  const result = checkRateLimit(identifier);
+/** Format retry-after milliseconds into a human-readable message. */
+export function retryAfterMessage(retryAfterMs: number): string {
+  if (retryAfterMs <= 0) return "Please try again in a moment.";
+  const seconds = Math.ceil(retryAfterMs / 1000);
+  if (seconds < 60) return `Please try again in ${seconds} second${seconds > 1 ? "s" : ""}.`;
+  const minutes = Math.ceil(seconds / 60);
+  return `Please try again in ${minutes} minute${minutes > 1 ? "s" : ""}.`;
+}
 
-  if (!result.allowed) {
-    const response = NextResponse.json(
-      { error: "Too many requests. Please try again later." },
-      { status: 429 }
-    );
-    return applyRateLimitHeaders(response, result);
-  }
+/** Create a rate limiter with the given key prefix, window, and max requests. */
+export function createLimiter(keyPrefix: string, windowMs: number, maxRequests: number) {
+  return {
+    async check(identifier: string | number) {
+      const key = `${keyPrefix}:${identifier}`;
+      return await store.hit(key, maxRequests, windowMs);
+    },
+    async reset(identifier: string | number) {
+      const key = `${keyPrefix}:${identifier}`;
+      await store.reset(key);
+    },
+  };
+}
 
-  return null;
+/** Pre-configured limiters used across the app. */
+export const authIpLimiter = createLimiter("auth:ip", 15 * 60 * 1000, 10); // 10 per 15 min
+export const authIdentifierLimiter = createLimiter("auth:id", 15 * 60 * 1000, 10); // 10 per 15 min
+export const passwordResetLimiter = createLimiter("reset", 60 * 60 * 1000, 5); // 5 per hour
+export const contactLimiter = createLimiter("contact", 60 * 60 * 1000, 5); // 5 per hour
+export const attendanceLimiter = createLimiter("attendance", 60 * 1000, 30); // 30 per minute
+
+/** Types for the rate-limit store interface. */
+export interface RateLimitStore {
+  hit(key: string, limit: number, windowMs: number): Promise<{
+    ok: boolean;
+    remaining: number;
+    retryAfterMs: number;
+  }>;
+  reset(key: string): Promise<void>;
+}
+
+export interface RateLimitResult {
+  ok: boolean;
+  remaining: number;
+  retryAfterMs: number;
 }
