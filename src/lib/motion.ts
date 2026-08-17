@@ -52,6 +52,28 @@ export const SPRING_OPTIONS = {
   drawer: DRAWER_SPRING,
 } as const;
 
+/**
+ * The same springs expressed as mass / stiffness / damping.
+ *
+ * Needed because `useSpring` does not honour the `bounce` + `duration` form:
+ * measured in the browser, a figure driven that way reached its target in
+ * under 60ms — moving, but far too fast to read as motion. The physics triplet
+ * is the original `useSpring` API and is respected. `transition` props on
+ * `motion.*` components take the friendlier form below and work correctly, so
+ * both spellings exist rather than one being wrong.
+ *
+ * Converted with the standard mapping, for a unit mass:
+ *
+ *     stiffness = (2π / response)²        damping = 2 · ζ · √stiffness
+ *
+ * `ui` is ζ = 1.0 (critically damped, no overshoot) at a 0.4s response, which
+ * gives stiffness ≈ 247 and damping ≈ 31.4 — the same motion as `SPRING.ui`,
+ * just stated in the units this API accepts.
+ */
+export const SPRING_PHYSICS = {
+  ui: { stiffness: 247, damping: 31.4, mass: 1 },
+} as const;
+
 /** Spring transitions, for the `transition` prop on a `motion.*` component. */
 export const SPRING = {
   /** Default. Critically damped — reaches the target without overshooting. */
