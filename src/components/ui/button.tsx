@@ -19,17 +19,22 @@ import { cn } from "@/lib/utils";
  * release. `:active` is the platform's pointer-down state, so it costs one
  * declaration and needs no JavaScript.
  *
- * 0.97 and 100ms are deliberately small: this should register as the surface
- * yielding under a finger, not as an animation playing. `transition-colors`
- * became an explicit property list because the transform has to be included
- * or the scale would snap.
+ * 0.97 is deliberately small: this should register as the surface yielding
+ * under a finger, not as an animation playing. `transition-colors` became an
+ * explicit property list because the transform has to be included or the scale
+ * would snap.
+ *
+ * The timing is asymmetric on purpose. The press is the deliberate phase, so it
+ * takes 160ms; the release is the system responding, so it snaps back at 100ms.
+ * Symmetric press-and-release timing reads as a spongy button — the same value
+ * in both directions makes the release feel like it has to catch up.
  *
  * `motion-reduce:active:scale-100` keeps the press *acknowledged* under
  * reduced motion — the colour change still fires — while removing the travel.
  * Reduced motion means less vestibular movement, not less feedback.
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium tracking-tight transition-[transform,background-color,border-color,color,opacity] duration-100 ease-out active:scale-[0.97] motion-reduce:active:scale-100 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium tracking-tight transition-[transform,background-color,border-color,color,opacity] duration-100 ease-out active:duration-press active:scale-[0.97] motion-reduce:active:scale-100 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   {
     variants: {
       variant: {

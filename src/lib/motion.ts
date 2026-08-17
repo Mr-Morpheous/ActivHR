@@ -7,121 +7,116 @@
  * three different ways: gsap `power3.out` over 0.6s in `motion/reveal.tsx`,
  * a cubic bézier over 0.7s in `motion/reveal-heading.tsx`, and BlurText's own
  * per-word stepping in `motion/blur-label.tsx`. Hover states picked from
- * `duration-300` and `duration-500` by hand, and `reactbits/BorderGlow.tsx`
- * used an asymmetric 0.25s/0.75s. Meanwhile the one genuinely well-chosen
- * spring on the site was stranded as a local literal in
+ * `duration-300` and `duration-500` by hand. Meanwhile the one genuinely
+ * well-chosen spring on the site was stranded as a local literal in
  * `site/industry-tabs.tsx`.
  *
  * None of those values were wrong so much as unrelated. Craft is the claim
  * that no timing is arbitrary, which requires the timings to be named
  * somewhere you can point at.
  *
- * WHY SPRINGS ARE DESCRIBED AS bounce + duration
+ * ⚠️ THE UNITS TRAP — READ BEFORE CHANGING ANYTHING HERE
  * ────────────────────────────────────────────────────────────────────────────
- * Apple deliberately replaced the physics triplet (mass / stiffness / damping)
- * with two parameters a designer can reason about: a damping ratio, which
- * controls overshoot, and a response time. `motion` exposes the same idea as
- * `bounce` + `duration`, so that is how these are written.
+ * `motion` reads a spring's `duration` in **different units on two different
+ * paths**, and nothing warns you:
  *
- * The convention:
+ *   - `transition={...}` on a `motion.*` component → **seconds**. The value
+ *     goes through `motion-value.mjs`, which multiplies by 1000.
+ *   - `useSpring(source, {...})` → **milliseconds**. It reaches `JSAnimation`
+ *     via `follow-value.mjs` with no conversion.
  *
+ * This cost a real bug. `useSpring(source, { bounce: 0, duration: 0.4 })` was
+ * read as 0.4ms, clamped to the 10ms floor, and the ROI figures snapped to
+ * their target instead of travelling. Measured against the installed
+ * motion@12.43.0 generator: `duration: 0.4` settles in 17ms; `duration: 400`
+ * settles in 415ms.
+ *
+ * So the canonical numbers below are in seconds, and `SPRING_MS` derives the
+ * millisecond form. Never hand-write a duration into `useSpring`.
+ *
+ * A SECOND TRAP: `duration` IS NOT A NATURAL PERIOD
+ * ────────────────────────────────────────────────────────────────────────────
+ * Apple describes a spring by damping ratio + *response* (its natural period).
+ * motion's `duration` is the *settling* time. They are not interchangeable, and
+ * converting one to the other with `stiffness = (2π/response)²` produces a
+ * visibly different spring — that mistake shipped here briefly and made the
+ * figures 36% slower than intended (564ms settle against 415ms).
+ *
+ * If you need the physics triplet, do not derive it algebraically. Measure it:
+ * drive `spring({ keyframes: [0, 100], ...opts })` to `done` and compare
+ * settle times. That is how `drawer` below was matched to the value it
+ * replaced.
+ *
+ * THE TWO SPRINGS
+ * ────────────────────────────────────────────────────────────────────────────
  *  - **`ui` — no overshoot.** The default. Critically damped is graceful and
  *    non-distracting; a menu that merely faded in has no business bouncing.
- *  - **`drawer` — slight overshoot.** Reserved for surfaces the user
- *    physically pushes or pulls. Bounce is only honest when momentum
- *    preceded it.
+ *  - **`drawer` — slight overshoot.** Only for surfaces the user physically
+ *    pushes or pulls. Bounce is honest only when momentum preceded it.
  *
- * `drawer` is the value `industry-tabs.tsx` had arrived at independently
- * (`stiffness: 420, damping: 34` works out to a damping ratio of ≈0.83 and a
- * response of ≈0.31s) which is in turn almost exactly Apple's published
- * figure for a sheet, 0.8 / 0.3. It was right; it just wasn't shared.
+ * `drawer` reproduces the `{ stiffness: 420, damping: 34 }` that
+ * `industry-tabs.tsx` had arrived at independently and which was the one piece
+ * of motion on the page that already felt right. Verified numerically: both
+ * settle in 448ms.
  *
- * This module is deliberately dependency-free so server components can import
- * the tokens. The hook that consumes them lives in `use-spring-number.ts`.
+ * This module is dependency-free so server components can import the tokens.
+ * The hook that consumes them lives in `use-spring-number.ts`.
  */
 
+/** Canonical spring definitions. Durations in SECONDS — see the units trap. */
 const UI_SPRING = { bounce: 0, duration: 0.4 } as const;
-const DRAWER_SPRING = { bounce: 0.2, duration: 0.3 } as const;
-
-/**
- * Raw spring options, for `useSpring` and friends, which take the options
- * object on its own rather than a full transition.
- */
-export const SPRING_OPTIONS = {
-  ui: UI_SPRING,
-  drawer: DRAWER_SPRING,
-} as const;
-
-/**
- * The same springs expressed as mass / stiffness / damping.
- *
- * Needed because `useSpring` does not honour the `bounce` + `duration` form:
- * measured in the browser, a figure driven that way reached its target in
- * under 60ms — moving, but far too fast to read as motion. The physics triplet
- * is the original `useSpring` API and is respected. `transition` props on
- * `motion.*` components take the friendlier form below and work correctly, so
- * both spellings exist rather than one being wrong.
- *
- * Converted with the standard mapping, for a unit mass:
- *
- *     stiffness = (2π / response)²        damping = 2 · ζ · √stiffness
- *
- * `ui` is ζ = 1.0 (critically damped, no overshoot) at a 0.4s response, which
- * gives stiffness ≈ 247 and damping ≈ 31.4 — the same motion as `SPRING.ui`,
- * just stated in the units this API accepts.
- */
-export const SPRING_PHYSICS = {
-  ui: { stiffness: 247, damping: 31.4, mass: 1 },
-} as const;
+const DRAWER_SPRING = { bounce: 0.17, duration: 0.44 } as const;
 
 /** Spring transitions, for the `transition` prop on a `motion.*` component. */
 export const SPRING = {
   /** Default. Critically damped — reaches the target without overshooting. */
   ui: { type: "spring", ...UI_SPRING },
-  /** For sheets, drawers and anything the user pushes. Slight overshoot. */
+  /** For sheets, drawers and travelling indicators. Slight overshoot. */
   drawer: { type: "spring", ...DRAWER_SPRING },
 } as const;
 
 /**
- * Easing curves, for the cases a spring cannot serve: something the user
- * cannot grab mid-flight, where a fixed duration is not a limitation.
- *
- * `out` is the existing hero/heading curve, kept as-is — it is the site's
- * signature entry and there was no reason to change how the brand moves,
- * only to stop it being redefined per file.
+ * The same springs with `duration` in MILLISECONDS, for `useSpring` and
+ * anything else on the follow-value path. Derived, never hand-written.
  */
+export const SPRING_MS = {
+  ui: { bounce: UI_SPRING.bounce, duration: UI_SPRING.duration * 1000 },
+  drawer: {
+    bounce: DRAWER_SPRING.bounce,
+    duration: DRAWER_SPRING.duration * 1000,
+  },
+} as const;
+
 type Bezier = [number, number, number, number];
 
-export const EASE: {
-  /** Fast departure, long settle. Entrances. */
-  out: Bezier;
-  /** The mirror of `out`. Use for the return leg of a reversible transition
-   *  so the path back matches the path out. */
-  in: Bezier;
-} = {
-  out: [0.16, 1, 0.3, 1],
+/**
+ * The site's entry curve, for the cases a spring cannot serve: something the
+ * user cannot grab mid-flight, where a fixed duration is not a limitation.
+ *
+ * Kept as-is — it is the brand's signature entry, and the point of moving it
+ * here was to stop it being redefined per file, not to change how it moves.
+ *
+ * There is deliberately no `ease-in` counterpart. An ease-in curve starts slow,
+ * which delays the exact frame the user is watching, so it is always wrong on
+ * interface motion. Shipping one as a named token would only invite its use.
+ * The CSS mirror of this curve lives in `globals.css` as `--ease-out`.
+ */
+export const EASE: { out: Bezier } = {
   // Not `as const`: a readonly tuple is not assignable to the mutable
   // `[number, number, number, number]` that motion's `ease` prop expects.
-  in: [0.7, 0, 0.84, 0],
+  out: [0.16, 1, 0.3, 1],
 };
 
 /**
  * Durations in seconds. Anything a user triggers and waits on belongs at
- * `fast` or `base`; `reveal` is for scroll-entry motion, which the user is
- * not waiting on and which reads as sluggish only if it blocks something.
+ * `press` or `base`; `reveal` is for scroll-entry motion, which the user is
+ * not waiting on.
  */
 export const DURATION = {
-  /** Press feedback, hover, colour changes. */
-  fast: 0.1,
-  /** State changes: open, close, expand, collapse. */
+  /** Press feedback — the deliberate phase of a press. */
+  press: 0.16,
+  /** State changes: open, close, expand, collapse. Also hover responses. */
   base: 0.2,
   /** Scroll-entry reveals. */
   reveal: 0.6,
-} as const;
-
-/** The same values in milliseconds, for CSS-in-JS and `setTimeout`. */
-export const DURATION_MS = {
-  fast: DURATION.fast * 1000,
-  base: DURATION.base * 1000,
-  reveal: DURATION.reveal * 1000,
 } as const;

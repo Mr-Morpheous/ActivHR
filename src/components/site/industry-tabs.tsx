@@ -198,12 +198,21 @@ export function IndustryTabs() {
                 so there is no momentum for an overshoot to be honest about. */}
             <motion.div
               className="grid gap-10 md:grid-cols-[1.2fr_1fr]"
+              // Full `transform` string, not the `x` shorthand: `opacity` is in
+              // motion's hardware-accelerated set and `x` is not, so pairing
+              // them runs the two halves of one entrance on different clocks —
+              // WAAPI for the fade, main-thread rAF for the slide — which can
+              // visibly desync under load.
               initial={
                 reduceMotion
                   ? { opacity: 0 }
-                  : { opacity: 0, x: direction * 12 }
+                  : { opacity: 0, transform: `translateX(${direction * 12}px)` }
               }
-              animate={reduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+              animate={
+                reduceMotion
+                  ? { opacity: 1 }
+                  : { opacity: 1, transform: "translateX(0px)" }
+              }
               transition={
                 reduceMotion ? { duration: DURATION.base } : SPRING.ui
               }

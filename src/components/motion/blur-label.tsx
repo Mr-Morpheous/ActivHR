@@ -47,10 +47,12 @@ export function BlurLabel({
       delay={delay}
       animateBy="words"
       direction="bottom"
-      // Per-word step, so this is a `base` state change rather than a
-      // `reveal` — the label as a whole still takes `delay × words` to
-      // arrive. Was 0.3s, chosen in isolation.
-      stepDuration={DURATION.base}
+      // BlurText animates each word through 3 keyframe snapshots, so a word's
+      // own reveal takes `stepDuration × 2` — this is a 0.4s reveal, not a 0.2s
+      // state change, and calling it `DURATION.base` mislabelled it by half.
+      // Expressed as a third of `reveal` because that is what it is: a share of
+      // one reveal, spent per snapshot. (Was 0.3s, chosen in isolation.)
+      stepDuration={DURATION.reveal / 3}
     />
   );
 }

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useMotionValue, useReducedMotion, useSpring } from "motion/react";
 
-import { SPRING_PHYSICS } from "@/lib/motion";
+import { SPRING_MS } from "@/lib/motion";
 
 /**
  * Follows a number with a spring, so a figure driven by a continuous control
@@ -42,12 +42,12 @@ export function useSpringNumber(value: number) {
   // travelled. Driving it from a source is unambiguous: every change to the
   // source is something for the spring to chase.
   //
-  // `SPRING_PHYSICS.ui` rather than `SPRING_OPTIONS.ui` for the same reason:
-  // `useSpring` ignores `bounce` + `duration`, and the figure was landing in
-  // under 60ms. The physics triplet is the identical motion in the units this
-  // hook's API actually reads — see the note in `motion.ts`.
+  // `SPRING_MS`, not `SPRING`: `useSpring` reads `duration` in milliseconds
+  // while a `transition` prop reads it in seconds. Passing the seconds value
+  // here meant 0.4ms, clamped to a 10ms floor, which is why the figure snapped
+  // instead of travelling. See the units trap in `motion.ts`.
   const source = useMotionValue(value);
-  const spring = useSpring(source, SPRING_PHYSICS.ui);
+  const spring = useSpring(source, SPRING_MS.ui);
 
   React.useEffect(() => {
     source.set(value);

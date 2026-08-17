@@ -176,6 +176,20 @@
      context-sessions/22. */
   --font-display: var(--font-source-serif);
 
+  /* Motion tokens, mirroring src/lib/motion.ts so the CSS and the TS agree on
+     one vocabulary. Most of this site's motion is CSS transitions, so a curve
+     defined only in TypeScript would be a token the majority of the motion
+     never sees.
+
+     `--ease-out` deliberately REDEFINES Tailwind's built-in `ease-out`
+     (`cubic-bezier(0, 0, 0.2, 1)`), which is too weak to read as deliberate.
+     Every `ease-out` utility in this codebase becomes the site curve, which is
+     the intent — the alternative is a second name that means "the good one"
+     and a permanent question about which to reach for. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-press: 160ms;
+  --duration-base: 200ms;
+
   --radius-sm: calc(var(--radius) - 2px);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 2px);
@@ -210,29 +224,44 @@
     letter-spacing: -0.01em;
   }
 
-  /* Display sizes: `text-4xl` and up, headings or not. */
-  .type-display {
-    letter-spacing: -0.025em;
-  }
-
-  /* Large numerals — prices, KPIs, stat tiles, calculator results.
-     Bundles the treatment the site had been repeating by hand
-     (`font-serif … leading-none tabular-nums`) so a live-updating figure
-     can't be added without tabular digits again. */
-  .type-figure {
-    @apply font-serif tabular-nums;
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-
-  /* Small text buys legibility back with a little positive tracking. */
-  .type-caption {
-    letter-spacing: 0.01em;
-  }
-
   .font-label {
     @apply font-mono uppercase tracking-widest text-xs;
   }
+}
+
+/* The type ladder is declared with `@utility`, not as classes in `@layer base`.
+   That is load-bearing rather than stylistic: a base-layer `.type-figure` loses
+   to Tailwind's own `text-4xl` utility, which sets `line-height` as well as
+   `font-size`. Written as base rules these silently dropped the `leading-none`
+   that `page.tsx` and `stat-tiles.tsx` had previously carried explicitly — and
+   `page.tsx` has a comment specifically explaining why that figure needs it.
+   As utilities they sit in the same layer and win on source order. */
+
+/* Display sizes: `text-4xl` and up, headings or not. */
+@utility type-display {
+  letter-spacing: -0.025em;
+}
+
+/* Large numerals — prices, KPIs, stat tiles, calculator results. Bundles the
+   serif face, tabular digits and display tracking that the site had been
+   repeating by hand.
+
+   ⚠️ PAIR IT WITH A `/none` FONT-SIZE MODIFIER — `type-figure text-4xl/none`.
+   Line height is deliberately NOT set here. Tailwind's `text-*` utilities set
+   `line-height` as well as `font-size`, and they win regardless of whether this
+   is declared in `@layer base` or as an `@utility` (verified in the browser:
+   `.type-figure.text-4xl` computed to 40px leading, not 36px). Declaring
+   `line-height: 1` here would look like it worked and quietly lose, which is
+   worse than not declaring it — so the caller states it, where it is visible. */
+@utility type-figure {
+  font-family: var(--font-serif);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Small text buys legibility back with a little positive tracking. */
+@utility type-caption {
+  letter-spacing: 0.01em;
 }
 
 /* ── Disclosure (details / summary) ───────────────────────────────────────
@@ -247,21 +276,34 @@
    platform's own answer to this, and `interpolate-size: allow-keywords` is
    what makes `block-size: auto` animatable.
 
-   Where the selector isn't supported, the disclosure opens instantly — which
-   is exactly what it did before — and the `@supports` gate withholds the icon
-   rotation too, so the two halves stay in agreement in *both* directions
-   rather than only where the animation lands. */
-:root {
-  interpolate-size: allow-keywords;
-}
+   Where this isn't supported the disclosure opens instantly — which is exactly
+   what it did before — and the `@supports` gate withholds the icon rotation
+   too, so the two halves stay in agreement in *both* directions rather than
+   only where the animation lands.
 
-@supports selector(details::details-content) {
+   THE GATE MUST TEST BOTH FEATURES. It originally tested only
+   `selector(details::details-content)`, which was the wrong half: that selector
+   is supported in Chromium, Safari 18.4+ and Firefox 139+, while
+   `interpolate-size` — the thing that actually makes `block-size: auto`
+   animatable — is Chromium-only. In the engines where those diverge the gate
+   passed, the icon rotated for 200ms, and the height snapped anyway. That is
+   precisely the mismatch described above, reintroduced in two browsers.
+
+   `interpolate-size` also lives on `.pac-details` rather than `:root`: it
+   inherits, and a document-wide interpolation switch declared for one
+   component is a much larger blast radius than this needs. */
+@supports (interpolate-size: allow-keywords) and
+  (selector(details::details-content)) {
+  .pac-details {
+    interpolate-size: allow-keywords;
+  }
+
   .pac-details::details-content {
     block-size: 0;
     overflow: hidden;
     transition:
-      block-size 200ms ease-out,
-      content-visibility 200ms;
+      block-size var(--duration-base) var(--ease-out),
+      content-visibility var(--duration-base);
     transition-behavior: allow-discrete;
   }
 
@@ -270,7 +312,7 @@
   }
 
   .pac-details-icon {
-    transition: transform 200ms ease-out;
+    transition: transform var(--duration-base) var(--ease-out);
   }
 }
 
@@ -301,8 +343,19 @@
    below. */
 .pac-material {
   background: color-mix(in srgb, var(--background) 72%, transparent);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  /* 16px, not 20px. 20px is the ceiling for transition-time blur, and this one
+     is worse than a transition: it sits on `sticky` chrome, so the strip
+     re-rasterizes on every scroll frame on the mid-range Android hardware this
+     product is built for. 16px buys headroom at no visible cost. */
+  /* NO MANUAL `-webkit-` PREFIX HERE. Writing both the standard property and
+     the `-webkit-` alias made Lightning CSS collapse them to the `-webkit-`
+     one alone in the production build — and Chromium does not support
+     `-webkit-backdrop-filter` (`CSS.supports` returns false for it), so the
+     blur silently did nothing on the majority browser. It worked in `next dev`,
+     which does not run the same minification, so this was only visible against
+     a real production build. Tailwind v4 prefixes for the configured targets on
+     its own; let it. */
+  backdrop-filter: blur(16px) saturate(180%);
 }
 
 /* Where floating chrome meets content, fade the boundary instead of ruling a
@@ -311,7 +364,9 @@
    with the content that needs it. */
 .pac-scroll-edge {
   border-bottom: 1px solid transparent;
-  transition: border-color 200ms ease-out, box-shadow 200ms ease-out;
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
 }
 
 .pac-scroll-edge[data-scrolled="true"] {
@@ -357,8 +412,8 @@
    is the current behaviour, so this is additive. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 200ms;
-  animation-timing-function: ease-out;
+  animation-duration: var(--duration-base);
+  animation-timing-function: var(--ease-out);
 }
 
 /* ── Stacked bar segment ──────────────────────────────────────────────────
@@ -367,7 +422,7 @@
    through a layout pass per frame. The segments tile by offsetting each one by
    the sum of those before it. */
 .pac-bar-segment {
-  transition: transform 200ms ease-out;
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -385,7 +440,6 @@
   .pac-material {
     background: var(--background);
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
 }
 
@@ -396,7 +450,6 @@
   .pac-material {
     background: var(--background);
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
     border-bottom: 1px solid var(--foreground);
   }
 
@@ -481,7 +534,7 @@
   /* (track 0.5rem − thumb 1.25rem) ÷ 2 — WebKit aligns the thumb to the top
      of the track once the track has an explicit height. */
   margin-top: -0.375rem;
-  transition: transform 100ms ease-out;
+  transition: transform var(--duration-press) var(--ease-out);
 }
 
 .pac-range::-moz-range-thumb {
@@ -491,7 +544,7 @@
   background: var(--primary);
   border: 2px solid var(--background);
   box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
-  transition: transform 100ms ease-out;
+  transition: transform var(--duration-press) var(--ease-out);
 }
 
 .pac-range:active::-webkit-slider-thumb {

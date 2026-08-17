@@ -84,9 +84,16 @@ export function CookieConsent() {
           // it read as a panel with thickness rather than a tinted region of
           // the page.
           className="pac-material fixed inset-x-0 bottom-0 z-50 border-t border-border px-4 py-5 shadow-lg sm:px-6"
-          initial={reduceMotion ? { opacity: 0 } : { y: "100%" }}
-          animate={reduceMotion ? { opacity: 1 } : { y: 0 }}
-          exit={reduceMotion ? { opacity: 0 } : { y: "100%" }}
+          // Full `transform` strings rather than the `y` shorthand. Only
+          // opacity, clipPath, filter, transform and backgroundColor are in
+          // motion's hardware-accelerated set — `y` falls back to a
+          // main-thread rAF animation, and this sheet enters during first
+          // paint, which is the worst moment to be competing for the main
+          // thread. The percentage is relative to the element's own height, so
+          // it still travels exactly its own height regardless of content.
+          initial={reduceMotion ? { opacity: 0 } : { transform: "translateY(100%)" }}
+          animate={reduceMotion ? { opacity: 1 } : { transform: "translateY(0%)" }}
+          exit={reduceMotion ? { opacity: 0 } : { transform: "translateY(100%)" }}
           transition={
             reduceMotion
               ? { duration: DURATION.base, ease: EASE.out }
@@ -125,15 +132,26 @@ export function CookieConsent() {
             {/* `initial={false}`: the panel must not play an opening animation
                 during the first render of a sheet that is itself still sliding
                 in. Two motions starting on the same frame read as one stutter,
-                not as two things happening. */}
+                not as two things happening.
+
+                Opacity and transform only — the height is deliberately left to
+                snap. Animating `height: 0 -> auto` would mean a layout pass per
+                frame, and this panel sits inside `.pac-material` on a fixed
+                bottom sheet, so each of those frames would also re-rasterize a
+                full-width backdrop blur. The composition bar in
+                roi-calculator.tsx went out of its way to avoid animating
+                `width` for exactly this reason; animating height here would
+                have been the same mistake under another name. A 4px rise plus a
+                fade reads as the panel arriving without asking the compositor
+                for anything. */}
             <AnimatePresence initial={false}>
               {showDetails && (
                 <motion.div
                   key="details"
                   className="overflow-hidden"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
+                  initial={{ opacity: 0, transform: "translateY(-4px)" }}
+                  animate={{ opacity: 1, transform: "translateY(0px)" }}
+                  exit={{ opacity: 0, transform: "translateY(-4px)" }}
                   transition={
                     reduceMotion
                       ? { duration: 0 }

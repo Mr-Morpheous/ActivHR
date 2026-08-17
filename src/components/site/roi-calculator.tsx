@@ -152,7 +152,7 @@ export function ROICalculator() {
                   finger. The rest of the site's large figures already use
                   this treatment (see site/stat-tiles.tsx). */}
               <SpringFigure
-                className="type-figure mt-2 text-4xl"
+                className="type-figure mt-2 text-4xl/none"
                 value={totalAnnualSavings}
                 format={formatCurrency}
               />
@@ -162,7 +162,7 @@ export function ROICalculator() {
               <div className="rounded-lg border border-border bg-background p-4 text-center">
                 <div className="text-xs text-muted-foreground uppercase tracking-wider">Net Annual ROI</div>
                 <SpringFigure
-                  className="type-figure mt-1 text-2xl"
+                  className="type-figure mt-1 text-2xl/none"
                   value={roiPercentage}
                   format={(v) => `${Math.round(v)}%`}
                 />
@@ -170,7 +170,7 @@ export function ROICalculator() {
               <div className="rounded-lg border border-border bg-background p-4 text-center">
                 <div className="text-xs text-muted-foreground uppercase tracking-wider">Payback Period</div>
                 <SpringFigure
-                  className="type-figure mt-1 text-2xl"
+                  className="type-figure mt-1 text-2xl/none"
                   value={paybackDays}
                   format={(v) => `${Math.ceil(v)} Days`}
                 />
@@ -178,7 +178,7 @@ export function ROICalculator() {
               <div className="rounded-lg border border-border bg-background p-4 text-center">
                 <div className="text-xs text-muted-foreground uppercase tracking-wider">HR Hours Saved/Yr</div>
                 <SpringFigure
-                  className="type-figure mt-1 text-2xl"
+                  className="type-figure mt-1 text-2xl/none"
                   value={annualHoursSaved}
                   format={(v) => `${Math.round(v).toLocaleString()} Hrs`}
                 />
@@ -186,7 +186,7 @@ export function ROICalculator() {
               <div className="rounded-lg border border-border bg-background p-4 text-center">
                 <div className="text-xs text-muted-foreground uppercase tracking-wider">Est. Software Cost/Yr</div>
                 <SpringFigure
-                  className="type-figure mt-1 text-2xl"
+                  className="type-figure mt-1 text-2xl/none"
                   value={annualCost}
                   format={formatCurrency}
                 />

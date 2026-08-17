@@ -370,7 +370,7 @@ export default function Home() {
                       weight. leading-none stops the 4xl line box adding leading
                       the baseline then has to fight. */}
                   <div className="mt-4 flex items-baseline justify-center gap-1.5">
-                    <span className="type-figure text-4xl">{plan.price}</span>
+                    <span className="type-figure text-4xl/none">{plan.price}</span>
                     <span className="text-sm text-muted-foreground">{plan.period}</span>
                   </div>
                 </div>
