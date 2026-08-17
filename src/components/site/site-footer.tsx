@@ -4,15 +4,26 @@ import Link from "next/link";
  * Columned footer carried over from the earlier landing page. The original
  * had a newsletter form with nothing behind it and links to a Help Center,
  * blog and API docs that don't exist — those are dropped rather than shipped
- * as dead ends. Every link here resolves.
+ * as dead ends.
+ *
+ * "Every link here resolves" is what this comment used to claim, and it was
+ * false: seven of them pointed at ids that appear nowhere on the homepage.
+ * `#how-it-works` and `#access` had no section at all and are replaced with the
+ * sections that do exist; the five Industries anchors live inside
+ * `site/industry-tabs.tsx`, which was never mounted and now is.
+ *
+ * ⚠️ IF YOU ADD A LINK HERE, OPEN IT. The browser check in the verification
+ * pass walks every anchor in the header and asserts it resolves — extend it to
+ * this footer rather than trusting a comment, which is how this drifted.
  */
 const COLUMNS = [
   {
     title: "Product",
     links: [
       { label: "Features", href: "/#features" },
-      { label: "How staff clock in", href: "/#how-it-works" },
-      { label: "Roles & access", href: "/#access" },
+      { label: "The 4 pillars", href: "/#pillars" },
+      { label: "ROI calculator", href: "/#roi-calculator" },
+      { label: "Pricing", href: "/#pricing" },
       { label: "FAQs", href: "/#faq" },
     ],
   },
@@ -37,6 +48,11 @@ const COLUMNS = [
   {
     title: "Company",
     links: [
+      // /about and /blog had zero inbound links from anywhere on the site and
+      // were absent from the sitemap, so both were unreachable except by typing
+      // the URL. Linking them here is the minimum fix.
+      { label: "About us", href: "/about" },
+      { label: "Blog", href: "/blog" },
       { label: "Request a pilot", href: "/#contact" },
       { label: "Log in", href: "/login" },
       { label: "Create an organization", href: "/login?mode=sign-up" },

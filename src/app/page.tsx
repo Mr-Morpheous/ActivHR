@@ -23,6 +23,7 @@ import { TrustBar } from "@/components/site/trust-bar";
 import { FAQ } from "@/components/site/faq";
 import { SiteFooter } from "@/components/site/site-footer";
 import { ROICalculator } from "@/components/site/roi-calculator";
+import { IndustryTabs } from "@/components/site/industry-tabs";
 import { GlowCard } from "@/components/site/glow-card";
 import { Reveal } from "@/components/motion/reveal";
 import { RevealHeading } from "@/components/motion/reveal-heading";
@@ -136,6 +137,16 @@ const PAIN_TRANSFORM = [
   },
 ] as const;
 
+/**
+ * ⚠️ STARTER AND GROWTH ARE BOTH PRICED "KES 320". Almost certainly a
+ * copy-paste error — two tiers with different feature sets at an identical
+ * price gives a prospect no reason to choose the higher one, and the "$3 per
+ * employee" figure in site/pricing.tsx and the FAQ is a third number again for
+ * the same product.
+ *
+ * Left as-is on 18 Aug 2026 because guessing a price is not a bug fix. The
+ * product owner sets these; the three places they appear must then agree.
+ */
 const PRICING_PLANS = [
   {
     name: "STARTER",
@@ -143,7 +154,11 @@ const PRICING_PLANS = [
     price: "KES 320",
     period: "/ employee / mo",
     features: [
-      "Core HR & Document Vault",
+      // "Core HR & Document Vault" — the vault half is removed for the same
+      // reason as the pillar bullet above it: there is no upload path in the
+      // product. Caught only because a mobile screenshot showed the pricing
+      // card; grepping PILLARS alone had missed this copy of the claim.
+      "Core HR & employee records",
       "Basic Leave & Attendance",
       "Standard Payslips",
       "Mobile Web Access",
@@ -376,6 +391,17 @@ export default function Home() {
       </section>
 
       {/* Pricing & Plan Architecture */}
+      {/* Industries.
+          ────────────────────────────────────────────────────────────────
+          Mounted 18 Aug 2026. This component existed, was complete, and was
+          rendered nowhere — while the header linked to `#industries` and the
+          footer linked to five per-industry anchors inside it. Seven dead
+          links, all pointing at code that was already written; it appears to
+          have been dropped during the frontend port rather than removed on
+          purpose. Its content also carries its own claims audit (see the
+          comment in the file), which is more than most of this page can say. */}
+      <IndustryTabs />
+
       <section id="pricing" className="mx-auto max-w-6xl px-6 py-16">
         <RevealHeading className="font-serif text-3xl">
           Pricing & Plan <span className="italic text-primary">Architecture</span>
