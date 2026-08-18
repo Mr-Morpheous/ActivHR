@@ -21,7 +21,7 @@ const COLUMNS = [
     title: "Product",
     links: [
       { label: "Features", href: "/#features" },
-      { label: "The 4 pillars", href: "/#pillars" },
+      { label: "The four pillars", href: "/#pillars" },
       { label: "ROI calculator", href: "/#roi-calculator" },
       { label: "Pricing", href: "/#pricing" },
       { label: "FAQs", href: "/#faq" },

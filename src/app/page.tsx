@@ -24,7 +24,6 @@ import { FAQ } from "@/components/site/faq";
 import { SiteFooter } from "@/components/site/site-footer";
 import { ROICalculator } from "@/components/site/roi-calculator";
 import { IndustryTabs } from "@/components/site/industry-tabs";
-import { GlowCard } from "@/components/site/glow-card";
 import { Reveal } from "@/components/motion/reveal";
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { BlurLabel } from "@/components/motion/blur-label";
@@ -249,18 +248,33 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Executive Dashboard Preview */}
-          <div className="mt-16 grid gap-4 md:grid-cols-3">
+          {/* Dashboard preview.
+              ────────────────────────────────────────────────────────────
+              These three figures sat directly under the hero with no framing,
+              so they read as ActivHR's own company metrics — "1,240 employees
+              across four regional hubs" is a claim about us, not a screenshot.
+              None of it is verifiable, and one tile said "100% statutory
+              compliant, filed on time", which is both a compliance guarantee
+              and a claim about payroll filing that docs/product-reference.md
+              does not list as built. That one is gone.
+
+              The rest are now explicitly labelled as an example view. A number
+              a visitor can tell is illustrative costs nothing; the same number
+              mistaken for a fact is the problem. */}
+          <div className="mt-16">
+            <p className="font-label text-muted-foreground">
+              Example dashboard — a 1,240-person operation
+            </p>
             <StatTiles
-              className="md:col-span-3"
+              className="mt-4"
               // Labels are uppercase mono at text-xs, the least forgiving type
               // on the page. The previous versions each carried a parenthetical
               // list and ran to three cramped lines; that detail belongs in the
               // sections below, not under a number.
               tiles={[
-                { value: "1,240", label: "Employees across four regional hubs" },
-                { value: "100%", label: "Statutory compliant, filed on time" },
+                { value: "1,240", label: "Staff on the roster" },
                 { value: "96.4%", label: "Signed in today across every site" },
+                { value: "8", label: "Sites reporting live" },
               ]}
             />
           </div>
@@ -269,53 +283,45 @@ export default function Home() {
 
       <TrustBar />
 
-      {/* The 4 Pillars */}
+      {/* The four pillars — OVERVIEW.
+          ────────────────────────────────────────────────────────────────
+          This section and "Product Modules Deep-Dive" below both mapped
+          `PILLARS` and both rendered the lead AND the full feature table. The
+          page said exactly the same thing twice, in two different card styles,
+          across roughly 2,000px — a visitor scrolled past four cards and then
+          met the identical four cards under a new heading.
+
+          Split by job instead of deleting one: this is the index — what the
+          four areas are — and the section below is the detail. That is the
+          progression the two headings already implied and only one of them was
+          delivering.
+
+          The 01/02/03/04 markers are gone with it. Numbering earns its place
+          when order carries information the reader needs; these are four
+          parallel capability areas, not steps, and nobody does payroll after
+          onboarding because the marker said 03. The icons already tell them
+          apart. */}
       <section id="pillars" className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="font-serif text-3xl">The 4 Pillars of <span className="italic text-primary">ActivHR</span></h2>
+        <h2 className="type-display font-serif text-3xl">
+          The four pillars of <span className="italic text-primary">ActivHR</span>
+        </h2>
+        <p className="mt-4 max-w-lg text-muted-foreground">
+          Four areas, one system. Each is broken down in detail further down the
+          page.
+        </p>
         <Separator className="mt-4 mb-10" />
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {PILLARS.map(({ icon: Icon, ...pillar }, i) => (
-            <GlowCard key={pillar.group} className="group/card h-full">
-              <div className="flex items-center gap-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-primary/10 text-primary transition-colors duration-300 group-hover/card:bg-primary group-hover/card:text-primary-foreground">
-                  <Icon className="size-4" strokeWidth={1.75} />
-                </span>
-                <div className="flex items-baseline gap-2">
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="font-label text-primary">{pillar.group}</h3>
-                </div>
-              </div>
-
-              {/* min-h fits the LONGEST lead (three lines at this size), so the
-                  rule below starts at the same y in every card. It was min-h-14
-                  — 56px against a ~83px three-line block — so any card whose
-                  lead ran to three lines pushed its divider down and the rules
-                  visibly stopped lining up across the two columns. */}
-              <p className="mt-4 font-serif text-xl leading-snug sm:min-h-[5.25rem]">
+        <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          {PILLARS.map(({ icon: Icon, ...pillar }) => (
+            <div key={pillar.group}>
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-primary/10 text-primary">
+                <Icon className="size-4" strokeWidth={1.75} />
+              </span>
+              <h3 className="font-label mt-4 text-primary">{pillar.group}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {pillar.lead}
               </p>
-
-              <dl className="mt-6 border-t-2 border-foreground/80">
-                {pillar.features.map(([name, description]) => (
-                  <div
-                    key={name}
-                    className="border-b border-border py-3 last:border-0 sm:grid sm:grid-cols-[minmax(0,11rem)_1fr] sm:gap-4"
-                  >
-                    {/* 11rem, up from 9.5: at the old width "Self-Service
-                        Onboarding" and "Automated Leave Management" wrapped
-                        while their neighbours didn't, so the term column read
-                        ragged down the card. */}
-                    <dt className="text-sm font-medium leading-snug">{name}</dt>
-                    <dd className="mt-0.5 text-sm leading-snug text-muted-foreground sm:mt-0">
-                      {description}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </GlowCard>
+            </div>
           ))}
         </div>
       </section>
