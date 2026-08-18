@@ -37,29 +37,36 @@ export const metadata: Metadata = {
     template: "%s — ActivHR",
   },
   description:
-    // 148 characters. The previous one ran to 238, which Google truncates at
+    // 152 characters. The previous one ran to 238, which Google truncates at
     // roughly 160 — the last third was never shown to anyone, and the
     // description is the single biggest driver of click-through from a results
     // page, so the part that gets cut is the part that was doing the selling.
-    "HRMIS built for the speed of African business: GPS-verified field attendance, multi-country payroll, and mobile-first self-service for hybrid teams.",
+    //
+    // "multi-country payroll" was removed on 18 Aug 2026 along with the payroll
+    // pillar: the product has no payroll engine, and a meta description is a
+    // promise made in a search result, before anyone can check.
+    "Attendance software for teams that work across sites: GPS-verified clock-in, offline-tolerant, with leave, rosters and exportable records.",
+  // "payroll automation", "multi-country payroll", "biometric attendance" and
+  // "WhatsApp ESS" all pointed at software that does not exist, and ranking for
+  // a term the product cannot serve buys traffic that bounces. Replaced with
+  // what someone looking for this product would actually search.
   keywords: [
-    "HRMIS",
-    "HR software Africa",
-    "payroll automation",
-    "biometric attendance",
-    "mobile HR",
-    "WhatsApp ESS",
-    "Kenyan HR software",
-    "multi-country payroll",
+    "attendance software Kenya",
+    "GPS clock in app",
+    "geofenced attendance",
+    "staff attendance tracking",
+    "shift roster software",
+    "leave management Kenya",
+    "multi-site workforce management",
+    "offline attendance app",
     "ActivHR",
-    "workforce management",
-    "HR self-service",
+    "HR software Africa",
   ],
   authors: [{ name: "ActivHR" }],
   openGraph: {
     title: "ActivHR — Africa's Adaptive HR and Talent Platform",
     description:
-      "HRMIS built for the speed of African business. Automate multi-country payroll, simplify biometric and field attendance, and engage your hybrid workforce.",
+      "Attendance software for teams that work across sites: GPS-verified clock-in that keeps working offline, with leave, rosters and exportable records.",
     url: "https://activhr.africa",
     siteName: "ActivHR",
     locale: "en_KE",
@@ -69,7 +76,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ActivHR — Africa's Adaptive HR and Talent Platform",
     description:
-      "HRMIS built for the speed of African business. Automate multi-country payroll, simplify biometric and field attendance, and engage your hybrid workforce.",
+      "Attendance software for teams that work across sites: GPS-verified clock-in that keeps working offline, with leave, rosters and exportable records.",
   },
   // NO GLOBAL `alternates.canonical`. It used to be set here to the homepage,
   // and because canonical is inherited, every other route declared itself a

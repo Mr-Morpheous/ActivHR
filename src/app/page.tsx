@@ -2,13 +2,14 @@ import StarsBackground from "@/components/StarsBackground";
 import Link from "next/link";
 import {
   ArrowRight,
+  BarChart3,
+  CalendarDays,
   Check,
-  Users,
-  DollarSign,
   ClipboardCheck,
-  Shield,
-  Globe,
   Clock,
+  Globe,
+  Shield,
+  Users,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -41,82 +42,84 @@ export const metadata: Metadata = {
 
 
 /**
- * ⚠️ UNRESOLVED: THIS ARRAY ADVERTISES MORE THAN THE PRODUCT DOES.
+ * The four pillars — REWRITTEN 18 Aug 2026 to match what is actually built.
  *
- * `docs/product-reference.md` is the project's own source of truth for what is
- * built, and it records a claims audit done on 14 Aug 2026 that removed
- * overstated features from this site. Several have since come back here.
- * Checked against that document on 18 Aug 2026, the following are NOT in its
- * "Built and working" table:
+ * Every line below maps to a row in the "✅ Built and working" table of
+ * docs/product-reference.md, which is this project's source of truth. If you
+ * add a row here, add it there first.
  *
- *   - "Statutory Engine — PAYE, NSSF, SHA, Housing Levy auto-computed and
- *     filed". "Filed" is a particularly strong claim.
- *   - "Multi-Currency Support"
- *   - "Instant Payslips … delivered via email or WhatsApp"
- *   - The entire "Strategic Appraisal & Performance" pillar: OKRs, Balanced
- *     Scorecards, 360-degree feedback, 9-box talent matrix.
+ * WHAT THIS REPLACED, AND WHY IT MATTERED
+ * ────────────────────────────────────────────────────────────────────────────
+ * Two of the previous four pillars described software that does not exist:
  *
- * Two items were removed outright rather than flagged, because the doc is
- * unambiguous about them: the document-vault bullets (no upload code exists
- * anywhere) and the overtime multipliers, which that doc lists under "❌ Not
- * built — and no longer advertised" and which had reappeared here.
+ *   - "Multi-Tax Payroll & Statutory" — PAYE/NSSF/SHA/Housing Levy "auto-
+ *     computed and filed", multi-currency payouts, password-protected payslips
+ *     over email and WhatsApp. There is no payroll engine in this codebase at
+ *     all. The only money feature is ActivHR's OWN per-seat invoicing
+ *     (lib/billing.ts, $3/employee/month) — that is us billing the customer,
+ *     not the customer paying their staff.
+ *   - "Strategic Appraisal & Performance" — OKRs, Balanced Scorecards,
+ *     360-degree feedback, a 9-box talent matrix. None of it exists, and none
+ *     of it is on the roadmap either (lib/roadmap.ts is overtime rules, shift
+ *     swaps, photo at clock-in, biometric terminals, mobile apps).
  *
- * The rest is left as-is deliberately. Rewriting the four pillars is a decision
- * about what the product claims to be, which belongs to the product owner, not
- * to whoever is next editing this file. Resolve it with them and delete this
- * comment — do not let it become furniture.
+ * So half the page was selling a product nobody could buy. lib/roadmap.ts
+ * already carries the note that "the landing page spent months advertising six
+ * features that were never built" — this is the same failure, at pillar scale.
+ *
+ * The replacements are not smaller claims about the same things; they are the
+ * things the product actually does well. Attendance enforcement, leave, the
+ * per-org rank ladder with database-enforced visibility, and multi-site
+ * reporting are a coherent product — arguably a more defensible one than a
+ * payroll suite that would have to compete with incumbents.
+ *
+ * Deliberate honesty in the wording, not hedging:
+ *   - Shift rosters say "build and remove", because editing and swaps do not
+ *     exist (product-reference: "Create and delete only").
+ *   - Reporting says the export is what you "hand to payroll", which is exactly
+ *     what a CSV of approved hours is for. It stops short of claiming we run it.
+ *   - Nothing here mentions biometric terminals: registration exists but there
+ *     is no ingest endpoint, so a registered device does nothing.
  */
 const PILLARS = [
   {
-    icon: Users,
-    group: "Core HR & Digital Onboarding",
-    lead: "Centralize personnel records in a secure cloud vault. Send digital contracts and automate onboarding task checklists for new hires.",
-    /* "Self-Service Onboarding … document uploads before Day 1" and "Smart
-       Document Vault — store contracts, certifications and ID docs with
-       automated expiration alerts" were removed on 18 Aug 2026. There is no
-       upload path in the product at all: no Storage bucket, no file input, no
-       `.upload(` call anywhere in src/ or supabase/. Both bullets described
-       software that does not exist.
-
-       ⚠️ The rest of this array still needs a claims audit against
-       docs/product-reference.md — see the note above PILLARS. */
-    features: [
-      ["Self-Serve Org Setup", "Create your organization, first site and admin account in one pass"],
-      ["Custom Org Levels", "Name your own hierarchy and set how far each level can see"],
-    ],
-  },
-  {
     icon: Clock,
-    group: "Smart Attendance & Field Ops",
-    lead: "Real-time clocking via biometric devices, mobile geo-fencing, or offline field sync for remote and multi-site workforces.",
+    group: "Attendance & field operations",
+    lead: "GPS-verified clock-in that holds up in the field, a queue that keeps working when the signal drops, and a shared kiosk for teams who don't clock in on their own phone.",
     features: [
-      ["Dynamic Shift Scheduling", "Create complex rosters with automatic overlap conflict detection"],
-      // "Overtime Engine — pre-configure multipliers (1.5x, 2.0x)" removed
-      // 18 Aug 2026. docs/product-reference.md lists `overtime rules` under
-      // "❌ Not built — and no longer advertised", removed from this site on
-      // 14 Aug. It had come back. This is restoring a settled decision.
-      ["Geofenced Clock-In", "GPS-verified attendance scoped to each site, with an offline queue"],
-      ["Automated Leave Management", "Custom leave types with automatic balance accrual and multi-tier approvals"],
+      ["Geofenced clock-in", "Checked against each site's own centre and radius, and enforced in the database rather than the interface"],
+      ["Works without signal", "Punches queue on the device and sync later, keeping the time the person actually clocked in"],
+      ["Kiosk and QR check-in", "A shared tablet at the gate, for staff without a phone to clock in on"],
     ],
   },
   {
-    icon: DollarSign,
-    group: "Multi-Tax Payroll & Statutory",
-    lead: "100% compliant automated payroll for local labor laws, multi-currency payouts, and instant payslip distribution via email/WhatsApp.",
+    icon: CalendarDays,
+    group: "Leave & scheduling",
+    lead: "Four leave types with balances that accrue on your own policy, approvals nobody can sign for themselves, and rosters built per site.",
     features: [
-      ["Statutory Engine", "PAYE, NSSF, SHA, Housing Levy auto-computed and filed"],
-      ["Multi-Currency Support", "Handle regional advisory clients across borders"],
-      ["Instant Payslips", "Password-protected PDF payslips delivered via email or WhatsApp"],
+      ["Requests and approvals", "Managers approve within their own site, and no one can approve their own request"],
+      ["Balances and accrual", "Per-type allowance, taken and remaining, accruing annually or monthly"],
+      ["Shift rosters", "Build and remove shifts per site, with Kenyan public holidays already loaded"],
     ],
   },
   {
-    icon: ClipboardCheck,
-    group: "Strategic Appraisal & Performance",
-    lead: "Drive performance with Balanced Scorecards, OKRs, 360-degree peer reviews, and real-time skill gap mapping.",
+    icon: Users,
+    group: "Structure & access",
+    lead: "Name the rank ladder you actually use, then set how far each level can see. The limits are enforced in the database, not just hidden in the interface.",
     features: [
-      ["Multi-Framework Support", "Deploy OKRs, Balanced Scorecards, or traditional KPIs"],
-      ["360-Degree Feedback", "Peer-to-peer recognition, quarterly check-ins, and upward reviews"],
-      ["Talent Matrix", "9-box grid to identify high-potential staff and link reviews to training"],
+      ["Your own rank ladder", "Name the levels your organization uses, or start from one of four presets"],
+      ["Visibility that is enforced", "Self, team, site or whole organization — applied to the data, not the screen"],
+      ["Tenant isolation", "Every record scoped to its organization by row-level security, verified against the live database"],
+    ],
+  },
+  {
+    icon: BarChart3,
+    group: "Oversight & reporting",
+    lead: "Who is on site now, who was late, and who was absent — across every location, in a file you can hand straight to payroll.",
+    features: [
+      ["Reports and CSV export", "Filter by site, role or date range, then export the approved hours"],
+      ["Multi-site management", "Each site carries its own geofence centre and radius"],
+      ["Targeted notices", "Send a notice to a site, a role, or both"],
     ],
   },
 ] as const;
@@ -128,23 +131,28 @@ const PAIN_TRANSFORM = [
     transform: "Single Source of Truth",
     transformDetail: "Centralized, encrypted cloud repository accessible anytime, anywhere.",
   },
+  // Rewritten 18 Aug 2026 alongside PILLARS. Two of these described a payroll
+  // engine and a statutory filing engine, neither of which exists, and a third
+  // promised a native mobile app — product-reference.md is explicit that the
+  // Expo build is a development client and the honest phrasing is "works in
+  // any phone browser".
   {
-    pain: "Payroll Discrepancies",
-    painDetail: "Manual overtime computations leading to costly errors and employee friction.",
-    transform: "Automated Precision",
-    transformDetail: "Direct biometric-to-payroll synchronization with automatic statutory deductions.",
+    pain: "Hours nobody can verify",
+    painDetail: "Paper registers and buddy punching, argued over at the end of the month.",
+    transform: "Attendance you can audit",
+    transformDetail: "Every punch carries a GPS fix checked against that site's radius, enforced in the database.",
   },
   {
-    pain: "Compliance Anxiety",
-    painDetail: "Missing changing local tax rates, statutory deadlines, or labor law updates.",
-    transform: "Guaranteed Compliance",
-    transformDetail: "Auto-updating statutory engines tailored to regional tax authorities.",
+    pain: "Leave balances in a spreadsheet",
+    painDetail: "Entitlements tracked by hand, and disputed the moment someone books time off.",
+    transform: "Balances that keep themselves",
+    transformDetail: "Allowance, taken and remaining per leave type, accruing annually or monthly on your policy.",
   },
   {
-    pain: "Disconnected Field Teams",
+    pain: "Disconnected field teams",
     painDetail: "No visibility into remote staff, farm managers, or multi-branch retail teams.",
-    transform: "Mobile-First Connectivity",
-    transformDetail: "Mobile app and WhatsApp ESS interface that works even with low bandwidth.",
+    transform: "Works where the signal doesn't",
+    transformDetail: "Any phone browser, with punches queued on the device and synced when the connection returns.",
   },
 ] as const;
 
@@ -165,15 +173,16 @@ const PRICING_PLANS = [
     price: "KES 320",
     period: "/ employee / mo",
     features: [
-      // "Core HR & Document Vault" — the vault half is removed for the same
-      // reason as the pillar bullet above it: there is no upload path in the
-      // product. Caught only because a mobile screenshot showed the pricing
-      // card; grepping PILLARS alone had missed this copy of the claim.
+      // Rewritten 18 Aug 2026. "Standard Payslips" went with the payroll
+      // pillar — there is no payslip anywhere in the product. The remaining
+      // lines are capabilities, not aspirations; support level is a commercial
+      // commitment rather than a software claim, which is why it can differ by
+      // tier when the software does not.
       "Core HR & employee records",
-      "Basic Leave & Attendance",
-      "Standard Payslips",
-      "Mobile Web Access",
-      "Email Support",
+      "Geofenced and kiosk clock-in",
+      "Leave requests, approvals and balances",
+      "Attendance reports and CSV export",
+      "Email support",
     ],
     cta: "Start 14-Day Trial",
     highlighted: false,
@@ -184,11 +193,16 @@ const PRICING_PLANS = [
     price: "KES 320",
     period: "/ employee / mo",
     features: [
+      // "Biometric Integration" is registration-only — product-reference.md:
+      // "No ingest endpoint. A registered device does nothing." "Advanced
+      // Appraisal Engine" and "WhatsApp ESS Bot Access" describe software that
+      // does not exist. Replaced with the structure and multi-site features,
+      // which do and which genuinely suit a larger organization.
       "Everything in Starter",
-      "Biometric Integration",
-      "Advanced Appraisal Engine",
-      "WhatsApp ESS Bot Access",
-      "SLA Support Response",
+      "Your own rank ladder and visibility scopes",
+      "Multi-site management with per-site geofences",
+      "Notices targeted by site and role",
+      "Priority support response",
     ],
     cta: "Schedule a Demo",
     highlighted: true,
@@ -199,11 +213,14 @@ const PRICING_PLANS = [
     price: "Custom",
     period: "Contact Sales",
     features: [
+      // "Multi-Currency Payroll" removed with the payroll pillar. "Custom ERP
+      // Integration" is a services commitment rather than a shipped feature,
+      // so it stays but is worded as work we do, not a product you switch on.
       "Everything in Growth",
-      "Custom ERP Integration",
-      "Multi-Currency Payroll",
-      "Dedicated Account Exec",
-      "Onsite Implementation",
+      "Multi-entity oversight console",
+      "Dedicated account manager",
+      "Onsite implementation and rollout",
+      "Integration work scoped with your team",
     ],
     cta: "Contact Sales",
     highlighted: false,
@@ -228,8 +245,16 @@ export default function Home() {
               </span>
             </h1>
 
+            {/* Was "Automate multi-country payroll, simplify biometric and
+                field attendance…". There is no payroll engine in the product,
+                and biometric terminals can be registered but cannot send a
+                scan. The hero now leads with the thing that is genuinely good
+                and genuinely built: attendance that holds up in the field. */}
             <p className="mt-6 max-w-xl text-muted-foreground">
-              Automate multi-country payroll, simplify biometric and field attendance, and engage your hybrid workforce with an intuitive, mobile-first HRMIS designed for local compliance and global scale.
+              GPS-verified clock-in for teams working across sites, leave and
+              rosters that manage themselves, and attendance records you can
+              export the moment payroll asks for them. Works in any phone
+              browser, and keeps working when the signal doesn&apos;t.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link href="/login?mode=sign-up">
@@ -244,7 +269,12 @@ export default function Home() {
               </a>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              No credit card required • Up and running in under 7 days • WhatsApp ESS integration supported
+              {/* "WhatsApp ESS integration supported" removed 18 Aug 2026:
+                  WhatsApp appears nowhere in docs/product-reference.md — not
+                  built, not partial, not on the roadmap. Replaced with the
+                  no-install claim, which is true and is the same objection it
+                  was trying to answer. */}
+              No credit card required • Set up your organization in minutes • Nothing to install
             </p>
           </div>
 
@@ -370,7 +400,8 @@ export default function Home() {
           Product Modules <span className="italic text-primary">Deep-Dive</span>
         </RevealHeading>
         <p className="mt-4 max-w-lg text-muted-foreground">
-          Four integrated modules covering every layer of modern HR — from digital onboarding to strategic performance management.
+          What each area actually does, in detail — from the clock-in on a
+          phone at the gate to the file you hand to payroll.
         </p>
         <Separator className="mt-4 mb-10" />
 
@@ -527,13 +558,18 @@ export default function Home() {
             <SpotlightCard className="h-full">
               <div className="flex items-center gap-3 mb-4">
                 <Globe className="size-6 text-primary" strokeWidth={1.5} />
-                <h3 className="font-label text-primary">Statutory Compliance</h3>
+                <h3 className="font-label text-primary">Data protection</h3>
               </div>
+              {/* Was "Statutory Compliance", listing PAYE, NSSF, SHA, Housing
+                  Levy and "auto-updating with KRA rate revisions" — a payroll
+                  filing engine that does not exist. What this product genuinely
+                  has to say about compliance is about personal data, which is
+                  what an HR system holds. */}
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>PAYE • NSSF • SHA • Housing Levy</li>
-                <li>Auto-updating with KRA rate revisions</li>
-                <li>Kenya Data Protection Act 2019</li>
-                <li>GDPR guidelines followed</li>
+                <li>Built against the Kenya Data Protection Act 2019</li>
+                <li>Consent captured before any non-essential cookie is set</li>
+                <li>Your organization&apos;s data is never shared between tenants</li>
+                <li>Attendance and leave records exportable on request</li>
               </ul>
             </SpotlightCard>
           </Reveal>
@@ -542,52 +578,41 @@ export default function Home() {
             <SpotlightCard className="h-full">
               <div className="flex items-center gap-3 mb-4">
                 <ClipboardCheck className="size-6 text-primary" strokeWidth={1.5} />
-                <h3 className="font-label text-primary">Audit & Monitoring</h3>
+                <h3 className="font-label text-primary">Record integrity</h3>
               </div>
+              {/* Was "Audit & Monitoring": immutable logs, complete visibility
+                  into modifications, payroll run audit trails, access event
+                  logging. product-reference.md lists "tamper-evident audit
+                  trail" under NOT BUILT, and there is no payroll to audit.
+                  These four are the integrity guarantees that do exist, all
+                  enforced in the database rather than the interface. */}
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>Immutable time-stamped logs</li>
-                <li>Complete visibility into data modifications</li>
-                <li>Payroll run audit trails</li>
-                <li>Access event logging</li>
+                <li>Punches stamped with the time taken, not the time synced</li>
+                <li>Geofence checked on every write path, including offline replays</li>
+                <li>Duplicate punches rejected by client event ID</li>
+                <li>Nobody can approve their own leave request</li>
               </ul>
             </SpotlightCard>
           </Reveal>
         </div>
       </section>
 
-      {/* Before / After Gallery */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <RevealHeading className="font-serif text-3xl">
-          Before & <span className="italic text-primary">After</span> ActivHR
-        </RevealHeading>
-        <Separator className="mt-4 mb-10" />
+      {/* Before / After — REMOVED 18 Aug 2026.
+          ────────────────────────────────────────────────────────────────
+          It read as a customer case study — "12+ person-days to reconcile",
+          "15% annual staff turnover", "real-time dashboards for 1,240 staff
+          across 4 hubs" — with no customer named and nothing to substantiate
+          any of it. Half the "after" column described software that does not
+          exist: payroll computed and filed in under four hours, instant digital
+          payslips over email and WhatsApp, biometric clock-ins from day one
+          (registration exists; no terminal can send a scan).
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <Reveal>
-            <SpotlightCard className="h-full">
-              <h3 className="font-label text-destructive mb-4">Before: Spreadsheet Chaos</h3>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                <li>• Attendance recorded on paper registers shared across 4 sites</li>
-                <li>• Monthly payroll took 12+ person-days to reconcile</li>
-                <li>• 15% annual staff turnover with no structured exit data</li>
-                <li>• Payslips printed, signed, and physically distributed</li>
-              </ul>
-            </SpotlightCard>
-          </Reveal>
+          It was also the third telling of the same story. The pain/transform
+          section above already runs before → after, honestly, on features that
+          ship. This one added a fabricated customer to it.
 
-          <Reveal delay={0.1}>
-            <SpotlightCard className="h-full">
-              <h3 className="font-label text-primary mb-4">After: Live, Automated Operations</h3>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                <li>• Biometric + mobile geo-fenced clock-ins from day one</li>
-                <li>• Payroll computed and filed in under 4 hours</li>
-                <li>• Real-time dashboards for 1,240 staff across 4 hubs</li>
-                <li>• Instant digital payslips via email and WhatsApp ESS</li>
-              </ul>
-            </SpotlightCard>
-          </Reveal>
-        </div>
-      </section>
+          To bring it back it needs a real, named, permissioned customer with
+          figures they agree to publish — the launch handbook's C11. */}
 
       <ROICalculator />
 

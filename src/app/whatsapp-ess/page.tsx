@@ -8,8 +8,27 @@ import { SiteFooter } from "@/components/site/site-footer";
 import type { Metadata } from "next";
 import { canonical } from "@/lib/site";
 
+/**
+ * ⚠️ THIS PAGE DESCRIBES SOFTWARE THAT DOES NOT EXIST.
+ *
+ * Every flow below — payslips over WhatsApp, leave applications, clock-in,
+ * the PIN authentication, the bot transcripts — is a mock-up. WhatsApp appears
+ * nowhere in docs/product-reference.md: not in "Built and working", not in
+ * "Partial", and not in lib/roadmap.ts either. There is no WhatsApp
+ * integration in this codebase.
+ *
+ * Set to `noindex` and removed from the sitemap on 18 Aug 2026 so it stops
+ * being promoted to strangers. Nothing on the site links to it, so it is
+ * currently unreachable except by typing the URL.
+ *
+ * It is kept rather than deleted because it reads as a deliberate product
+ * proposal and may be a real plan. Decide one of three things and act on it:
+ * build it, rewrite it as a clearly-labelled roadmap page, or delete it. Do not
+ * leave it here indefinitely as a page that would mislead anyone who found it.
+ */
 export const metadata: Metadata = {
   title: "WhatsApp Employee Self-Service",
+  robots: { index: false, follow: false },
   description:
     "Give your workforce self-service through WhatsApp — payslips, leave requests and attendance — with no app to install and no training required.",
   alternates: { canonical: canonical("/whatsapp-ess") },

@@ -32,7 +32,18 @@ const PAGES: Entry[] = [
   { path: "", priority: 1.0, changeFrequency: "weekly" },
   { path: "/about", priority: 0.7, changeFrequency: "monthly" },
   { path: "/demo", priority: 0.9, changeFrequency: "monthly" },
-  { path: "/whatsapp-ess", priority: 0.8, changeFrequency: "monthly" },
+  // /whatsapp-ess is NOT listed, and is `noindex` in its own metadata.
+  //
+  // The page is a full product pitch for WhatsApp employee self-service —
+  // payslip delivery, leave applications and clock-in over WhatsApp, complete
+  // with mocked bot transcripts. None of it exists: WhatsApp appears nowhere in
+  // docs/product-reference.md, not as built, not as partial, and not on the
+  // roadmap in lib/roadmap.ts. Nothing on the site links to it either.
+  //
+  // Submitting it to a search engine would be actively recruiting strangers to
+  // a page selling software that cannot be bought. Left in the codebase rather
+  // than deleted because someone wrote it deliberately and it may be a real
+  // plan — but it should be deleted or rewritten, not quietly indexed.
   { path: "/blog", priority: 0.7, changeFrequency: "weekly" },
   // Legal pages are indexable on purpose: the handbook requires them to be
   // reachable at a stable URL without authentication, and an app-store review
