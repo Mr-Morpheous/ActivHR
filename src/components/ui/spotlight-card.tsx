@@ -44,9 +44,19 @@ export function SpotlightCard({
       onMouseEnter={() => setOpacity(1)}
       onMouseLeave={() => setOpacity(0)}
       className={cn(
-        // Mirrors ui/card.tsx's shell exactly, so CardHeader / CardContent
-        // lay out identically inside either one.
-        "bg-card text-card-foreground border border-border rounded-sm flex flex-col gap-4 py-5",
+        // `px-5` — NOT in ui/card.tsx, and that difference is the point.
+        //
+        // This shell was copied from `Card`, which sets only `py-5` because its
+        // horizontal padding lives on CardHeader / CardContent / CardFooter.
+        // `Card` is never used without them. `SpotlightCard` is: all 20 usages
+        // on the marketing site pass raw divs, lists and definition lists as
+        // children, so nothing supplied the horizontal padding and every one of
+        // them rendered its text flush against the left and right borders. That
+        // is what made the cards look unfinished.
+        //
+        // If a caller ever nests CardHeader/CardContent in here, remove this and
+        // let those provide it — but no caller does today.
+        "bg-card text-card-foreground border border-border rounded-sm flex flex-col gap-4 px-5 py-5",
         // 200ms, not 300ms: this is a hover state on a card, and there are
         // seven of these on the landing page alone. Hover feedback sits in the
         // same budget as press feedback — short enough that it reads as the

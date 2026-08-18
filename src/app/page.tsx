@@ -383,11 +383,23 @@ export default function Home() {
                   {pillar.lead}
                 </p>
 
-                <dl className="mt-6 border-t-2 border-foreground/80">
+                {/* `mt-auto` pins the spec table to the card floor. These four
+                    cards hold different numbers of rows, and in a stretch grid
+                    the shorter ones used to leave a void hanging below their
+                    last row — the table looked cut off rather than complete.
+                    Pushed down, the tables bottom-align across the row and the
+                    slack sits above them, where it reads as breathing room.
+
+                    The label column went 9.5rem → 11rem: at 9.5rem every
+                    two-word label broke mid-phrase ("Dynamic Shift /
+                    Scheduling", "Automated Leave / Management"), which is the
+                    kind of ragged detail that makes a careful layout look
+                    careless. */}
+                <dl className="mt-auto border-t-2 border-foreground/80 pt-0">
                   {pillar.features.map(([name, description]) => (
                     <div
                       key={name}
-                      className="border-b border-border py-3 last:border-0 sm:grid sm:grid-cols-[minmax(0,9.5rem)_1fr] sm:gap-4"
+                      className="border-b border-border py-3 last:border-0 sm:grid sm:grid-cols-[minmax(0,11rem)_1fr] sm:gap-4"
                     >
                       <dt className="text-sm font-medium">{name}</dt>
                       <dd className="mt-0.5 text-sm text-muted-foreground sm:mt-0">

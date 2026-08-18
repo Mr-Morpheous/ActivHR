@@ -10,6 +10,7 @@ import {
   retryAfterMessage,
 } from "@/lib/rate-limit";
 import { turnstileMessage, verifyTurnstile } from "@/lib/turnstile";
+import { notifyEnquiry } from "@/lib/notify";
 
 /**
  * The landing page's pilot enquiry form.
@@ -25,10 +26,16 @@ import { turnstileMessage, verifyTurnstile } from "@/lib/turnstile";
  * Writing with the service role means the limiter is the only way in, because
  * migration 0029 removes the anon policy and there is then no other path.
  *
- * DEPLOY ORDER MATTERS. This code must be live BEFORE 0029 is applied, or the
- * public form breaks: the running build would still be using the anon client
- * against a policy that no longer exists. 0029 is deliberately left unapplied
- * for that reason.
+ * 0029 IS APPLIED. Verified against the live database on 18 Aug 2026: no INSERT
+ * policy remains on contact_requests, and an anon POST to
+ * /rest/v1/contact_requests returns 401. This comment previously said 0029 was
+ * "deliberately left unapplied", which was true when written and stale by the
+ * time anyone read it — an audit believed it and reported an open write path
+ * that had already been closed.
+ *
+ * The deploy order that made it a staged migration still holds if it is ever
+ * re-run against a fresh environment: this code must be live before the policy
+ * is dropped, or the public form breaks against a policy that no longer exists.
  */
 function serviceClient() {
   return createServiceClient(
@@ -71,7 +78,12 @@ export type ContactResult = {
 
 export async function submitContactRequest(
   input: ContactInput,
-  turnstileToken?: string | null
+  turnstileToken?: string | null,
+  /**
+   * Which form this came from. Only affects the notification subject line —
+   * both write to the same table.
+   */
+  source: "contact" | "demo" = "contact"
 ): Promise<ContactResult> {
   const ip = clientIpFrom(await headers());
 
@@ -165,6 +177,25 @@ export async function submitContactRequest(
         `We couldn't record that just now. Email ${SUPPORT_EMAIL} directly and we'll pick it up.`,
     };
   }
+
+  // Awaited, not fired and forgotten. A serverless function can be frozen the
+  // moment its response is returned, which kills an un-awaited promise
+  // mid-flight — the classic way notification emails go missing in production
+  // while working perfectly in local development.
+  //
+  // Awaiting is safe because `notifyEnquiry` never throws and never rejects: it
+  // swallows its own failures. The row is already committed above, so the worst
+  // case is a lead that is stored but not announced, which is recoverable from
+  // the table. It costs the submitter up to the 8s Resend timeout.
+  await notifyEnquiry({
+    fullName,
+    workEmail,
+    company,
+    phone,
+    teamSize,
+    message,
+    source,
+  });
 
   return { success: true as const };
 }

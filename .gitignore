@@ -73,3 +73,32 @@ docs/superpowers/
 
 # Contains the audit of which advertised features do not actually exist.
 docs/product-reference.md
+
+# ── Untracked on 18 Aug 2026 ─────────────────────────────────────────────
+#
+# ⚠️ LISTING A PATH HERE DOES NOT UNTRACK IT. Everything below was already
+# being tracked and had to be removed with `git rm --cached` as well. That is
+# exactly how `README.md` above ended up published for weeks while sitting in
+# this file: it was ignored and tracked at the same time, and git keeps
+# tracking what it already tracks.
+#
+# blue/ — the previous frontend, kept locally as a reference during the port.
+# 198 files and 2.1 MB of it were in the repository, including the Word drafts
+# of the privacy policy, terms and cookie policy, an SEO audit, ten
+# session-by-session build notes under "context & sessions/", two files under
+# docs/superpowers/, a demo seed script and the brand asset archives. Every
+# category this file already says is "nobody else's business" was published
+# anyway, one directory down.
+blue/
+
+# Internal narrative of what changed and why, and it names the deployment host.
+WHATS-CHANGED.md
+
+# Playwright's run artifacts.
+test-results/
+
+# Machine-local scheduler lock, not project source.
+.claude/scheduled_tasks.lock
+
+# The superpowers workspace, if it is ever created at the root.
+.superpowers/

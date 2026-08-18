@@ -1,11 +1,21 @@
 -- 0029 — Remove the last anonymous write path.
 --
--- ⚠️  NOT YET APPLIED. DEPLOY THE CODE FIRST. ⚠️
+-- ✅ APPLIED AND VERIFIED — 18 Aug 2026, project cxwwxsuggzrczehfhohg.
 --
--- src/app/contact-actions.ts must be live before this runs. It now inserts with
--- the service role; the previously deployed build inserts with the anon client.
--- Applying this against a stale deploy breaks the public contact form
--- immediately, on a page that has real traffic.
+-- This header said "NOT YET APPLIED" long after it had been, and
+-- src/app/contact-actions.ts repeated the claim. A security audit on 18 Aug
+-- read both and reported the anon write path as still open; it was not. A stale
+-- "not done yet" is worse than no note at all, because it is believed.
+--
+-- Verified against the live database on 18 Aug 2026:
+--   - pg_policies has zero INSERT policies on contact_requests
+--   - the table comment below is present
+--   - an anon POST to /rest/v1/contact_requests returns 401,
+--     "new row violates row-level security policy" — the acceptance test in
+--     step 4 of the original plan
+--
+-- The original deploy order, kept for the record, since it is the reason this
+-- was staged rather than applied with the rest:
 --
 --   1. deploy the build containing the service-role contact action
 --   2. submit the form on the live site and confirm the row lands

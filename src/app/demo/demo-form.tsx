@@ -112,7 +112,8 @@ export function DemoForm() {
           teamSize: workforce,
           message: notes,
         },
-        turnstileToken
+        turnstileToken,
+        "demo"
       );
 
       if (result.fieldErrors) {
