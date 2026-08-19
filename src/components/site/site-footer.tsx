@@ -11,19 +11,8 @@ const COLUMNS = [
     title: "Product",
     links: [
       { label: "Features", href: "/#features" },
-      { label: "How staff clock in", href: "/#how-it-works" },
       { label: "Roles & access", href: "/#access" },
       { label: "FAQs", href: "/#faq" },
-    ],
-  },
-  {
-    title: "Industries",
-    links: [
-      { label: "Field services", href: "/#field-services" },
-      { label: "Security & guarding", href: "/#security" },
-      { label: "Retail & warehousing", href: "/#retail" },
-      { label: "Logistics", href: "/#logistics" },
-      { label: "Manufacturing", href: "/#manufacturing" },
     ],
   },
   {

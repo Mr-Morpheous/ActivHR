@@ -62,9 +62,9 @@ const PILLARS = [
   {
     icon: ClipboardCheck,
     group: "Strategic Appraisal & Performance",
-    lead: "Drive performance with Balanced Scorecards, OKRs, 360-degree peer reviews, and real-time skill gap mapping.",
+    lead: "Drive performance with Balanced Scorecards, Objective and Key results, 360-degree feedback, and real-time skill gap mapping.",
     features: [
-      ["Multi-Framework Support", "Deploy OKRs, Balanced Scorecards, or traditional KPIs"],
+      ["Multi-Framework Support", "Deploy Objective and Key results, Balanced Scorecards, or traditional KPIs"],
       ["360-Degree Feedback", "Peer-to-peer recognition, quarterly check-ins, and upward reviews"],
       ["Talent Matrix", "9-box grid to identify high-potential staff and link reviews to training"],
     ],
@@ -94,7 +94,7 @@ const PAIN_TRANSFORM = [
     pain: "Disconnected Field Teams",
     painDetail: "No visibility into remote staff, farm managers, or multi-branch retail teams.",
     transform: "Mobile-First Connectivity",
-    transformDetail: "Mobile app and WhatsApp ESS interface that works even with low bandwidth.",
+    transformDetail: "Mobile app and WhatsApp ESS (Employee Self Service) interface that works even with low bandwidth.",
   },
 ] as const;
 
@@ -123,7 +123,7 @@ const PRICING_PLANS = [
       "Everything in Starter",
       "Biometric Integration",
       "Advanced Appraisal Engine",
-      "WhatsApp ESS Bot Access",
+      "WhatsApp ESS (Employee Self Service) Bot Access",
       "SLA Support Response",
     ],
     cta: "Schedule a Demo",
@@ -156,16 +156,18 @@ export default function Home() {
         <HeroThreads />
         <section className="mx-auto max-w-6xl px-6 pt-20 pb-12">
           <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-            <span className="font-label text-primary">Africa&apos;s Adaptive HR and Talent Platform</span>
-            <h1 className="mt-5 font-serif text-4xl leading-[1.05] sm:text-5xl md:text-6xl">
+            <h1 className="font-serif text-4xl leading-[1.05] sm:text-5xl md:text-6xl">
+              Africa&apos;s Adaptive HR and Talent Platform
+            </h1>
+            <h2 className="mt-5 font-label text-primary">
               HRMIS Built for the{" "}
               <span className="italic text-primary sm:whitespace-nowrap">
                 Speed of African Business
               </span>
-            </h1>
+            </h2>
 
             <p className="mt-6 max-w-xl text-muted-foreground">
-              Automate multi-country payroll, simplify biometric and field attendance, and engage your hybrid workforce with an intuitive, mobile-first HRMIS designed for local compliance and global scale.
+              Automate payroll, simplify biometric and field attendance, and engage your workforce with an intuitive, mobile-first HRMIS designed for local compliance and global scale.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link href="/login?mode=sign-up">
@@ -179,82 +181,14 @@ export default function Home() {
                 </Button>
               </a>
             </div>
-            <p className="mt-4 text-sm text-muted-foreground">
-              No credit card required • Up and running in under 7 days • WhatsApp ESS integration supported
+                       <p className="mt-4 text-sm text-muted-foreground">
+             Up and running in under 7 days - WhatsApp ESS (Employee Self Service) integration supported
             </p>
-          </div>
-
-          {/* Executive Dashboard Preview */}
-          <div className="mt-16 grid gap-4 md:grid-cols-3">
-            <StatTiles
-              className="md:col-span-3"
-              // Labels are uppercase mono at text-xs, the least forgiving type
-              // on the page. The previous versions each carried a parenthetical
-              // list and ran to three cramped lines; that detail belongs in the
-              // sections below, not under a number.
-              tiles={[
-                { value: "1,240", label: "Employees across four regional hubs" },
-                { value: "100%", label: "Statutory compliant, filed on time" },
-                { value: "96.4%", label: "Signed in today across every site" },
-              ]}
-            />
           </div>
         </section>
       </div>
 
-      <TrustBar />
-
-      {/* The 4 Pillars */}
-      <section id="pillars" className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="font-serif text-3xl">The 4 Pillars of <span className="italic text-primary">ActivHR</span></h2>
-        <Separator className="mt-4 mb-10" />
-
-        <div className="grid gap-4 md:grid-cols-2">
-          {PILLARS.map(({ icon: Icon, ...pillar }, i) => (
-            <GlowCard key={pillar.group} className="group/card h-full">
-              <div className="flex items-center gap-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-primary/10 text-primary transition-colors duration-300 group-hover/card:bg-primary group-hover/card:text-primary-foreground">
-                  <Icon className="size-4" strokeWidth={1.75} />
-                </span>
-                <div className="flex items-baseline gap-2">
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="font-label text-primary">{pillar.group}</h3>
-                </div>
-              </div>
-
-              {/* min-h fits the LONGEST lead (three lines at this size), so the
-                  rule below starts at the same y in every card. It was min-h-14
-                  — 56px against a ~83px three-line block — so any card whose
-                  lead ran to three lines pushed its divider down and the rules
-                  visibly stopped lining up across the two columns. */}
-              <p className="mt-4 font-serif text-xl leading-snug sm:min-h-[5.25rem]">
-                {pillar.lead}
-              </p>
-
-              <dl className="mt-6 border-t-2 border-foreground/80">
-                {pillar.features.map(([name, description]) => (
-                  <div
-                    key={name}
-                    className="border-b border-border py-3 last:border-0 sm:grid sm:grid-cols-[minmax(0,11rem)_1fr] sm:gap-4"
-                  >
-                    {/* 11rem, up from 9.5: at the old width "Self-Service
-                        Onboarding" and "Automated Leave Management" wrapped
-                        while their neighbours didn't, so the term column read
-                        ragged down the card. */}
-                    <dt className="text-sm font-medium leading-snug">{name}</dt>
-                    <dd className="mt-0.5 text-sm leading-snug text-muted-foreground sm:mt-0">
-                      {description}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </GlowCard>
-          ))}
-        </div>
-      </section>
-
+            
       {/* Pain vs Transformation Matrix */}
       <section className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="font-serif text-3xl">The <span className="italic text-primary">Legacy HR Nightmare</span> vs The ActivHR <span className="italic text-primary">Transformation</span></h2>
@@ -280,18 +214,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Executive Testimonial */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <Separator className="mb-10" />
-        <blockquote className="font-serif text-2xl italic leading-relaxed text-center max-w-4xl mx-auto">
-          &ldquo;Managing HR across multiple branches used to absorb weeks of manual administrative work every month. ActivHR gave us absolute visibility over attendance, streamlined our monthly payroll, and made self-service effortless for our team on their phones.&rdquo;
-        </blockquote>
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          — Director of Human Capital, Fast-Growing Regional Enterprise
-        </p>
-        <Separator className="mt-10" />
       </section>
 
       {/* Product Modules Deep-Dive */}
@@ -456,40 +378,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Before / After Gallery */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <RevealHeading className="font-serif text-3xl">
-          Before & <span className="italic text-primary">After</span> ActivHR
-        </RevealHeading>
-        <Separator className="mt-4 mb-10" />
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <Reveal>
-            <SpotlightCard className="h-full">
-              <h3 className="font-label text-destructive mb-4">Before: Spreadsheet Chaos</h3>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                <li>• Attendance recorded on paper registers shared across 4 sites</li>
-                <li>• Monthly payroll took 12+ person-days to reconcile</li>
-                <li>• 15% annual staff turnover with no structured exit data</li>
-                <li>• Payslips printed, signed, and physically distributed</li>
-              </ul>
-            </SpotlightCard>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <SpotlightCard className="h-full">
-              <h3 className="font-label text-primary mb-4">After: Live, Automated Operations</h3>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                <li>• Biometric + mobile geo-fenced clock-ins from day one</li>
-                <li>• Payroll computed and filed in under 4 hours</li>
-                <li>• Real-time dashboards for 1,240 staff across 4 hubs</li>
-                <li>• Instant digital payslips via email and WhatsApp ESS</li>
-              </ul>
-            </SpotlightCard>
-          </Reveal>
-        </div>
-      </section>
-
+      
       <ROICalculator />
 
       <FAQ />
@@ -503,10 +392,10 @@ export default function Home() {
             className="font-label text-primary"
           />
           <RevealHeading className="mt-4 max-w-xl font-serif text-4xl">
-            Ready to modernize your HR operations?
+            Get in touch
           </RevealHeading>
           <p className="mt-4 max-w-lg text-pac-paper/70">
-            One geofenced check-in flow for guards, field staff, and site teams — with a live dashboard that tells you who&apos;s on site right now, not who clocked in yesterday. Set up your first site in minutes; no credit card required.
+            One geofenced check-in flow for guards, field staff, and site teams — with a live dashboard that tells you who&apos;s on site right now, not who clocked in yesterday. Set up your first site in minutes.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/login?mode=sign-up">
