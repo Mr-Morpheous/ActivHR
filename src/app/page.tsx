@@ -10,6 +10,14 @@ import {
   Globe,
   Clock,
 } from "lucide-react";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table"
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -17,13 +25,11 @@ import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { HeroThreads } from "@/components/site/hero-threads";
 import { CtaTexture } from "@/components/site/cta-texture";
 import { SiteHeader } from "@/components/site/site-header";
-import { StatTiles } from "@/components/site/stat-tiles";
 import { ContactForm } from "@/components/site/contact-form";
-import { TrustBar } from "@/components/site/trust-bar";
 import { FAQ } from "@/components/site/faq";
 import { SiteFooter } from "@/components/site/site-footer";
 import { ROICalculator } from "@/components/site/roi-calculator";
-import { GlowCard } from "@/components/site/glow-card";
+import { InfoCard } from "@/components/InfoCard";
 import { Reveal } from "@/components/motion/reveal";
 import { RevealHeading } from "@/components/motion/reveal-heading";
 import { BlurLabel } from "@/components/motion/blur-label";
@@ -170,51 +176,18 @@ export default function Home() {
               Automate payroll, simplify biometric and field attendance, and engage your workforce with an intuitive, mobile-first HRMIS designed for local compliance and global scale.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Link href="/login?mode=sign-up">
+              <Link href="/demo">
                 <Button size="lg">
                   Request a Custom Demo <ArrowRight />
                 </Button>
               </Link>
-              <a href="#features">
-                <Button size="lg" variant="outline">
-                  Explore Platform Features
-                </Button>
-              </a>
             </div>
-                       <p className="mt-4 text-sm text-muted-foreground">
-             Up and running in under 7 days - WhatsApp ESS (Employee Self Service) integration supported
+            <p className="mt-4 text-sm text-muted-foreground">
+              Up and running in under 7 days - WhatsApp ESS (Employee Self Service) integration supported
             </p>
           </div>
         </section>
       </div>
-
-            
-      {/* Pain vs Transformation Matrix */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="font-serif text-3xl">The <span className="italic text-primary">Legacy HR Nightmare</span> vs The ActivHR <span className="italic text-primary">Transformation</span></h2>
-        <Separator className="mt-4 mb-10" />
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-6">
-            <h3 className="font-label text-lg text-destructive">The Legacy HR Nightmare</h3>
-            {PAIN_TRANSFORM.map((item) => (
-              <div key={item.pain} className="space-y-1">
-                <p className="font-serif text-lg">{item.pain}</p>
-                <p className="text-sm text-muted-foreground">{item.painDetail}</p>
-              </div>
-            ))}
-          </div>
-          <div className="space-y-6">
-            <h3 className="font-label text-lg text-primary">The ActivHR Transformation</h3>
-            {PAIN_TRANSFORM.map((item) => (
-              <div key={item.transform} className="space-y-1">
-                <p className="font-serif text-lg">{item.transform}</p>
-                <p className="text-sm text-muted-foreground">{item.transformDetail}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Product Modules Deep-Dive */}
       <section id="features" className="mx-auto max-w-6xl px-6 py-16">
@@ -222,42 +195,62 @@ export default function Home() {
           Product Modules <span className="italic text-primary">Deep-Dive</span>
         </RevealHeading>
         <p className="mt-4 max-w-lg text-muted-foreground">
-          Four integrated modules covering every layer of modern HR — from digital onboarding to strategic performance management.
+          Four integrated modules covering every layer of modern HR -- from digital onboarding to strategic performance management.
         </p>
         <Separator className="mt-4 mb-10" />
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {PILLARS.map(({ icon: Icon, ...pillar }, i) => (
-            <Reveal key={pillar.group} delay={(i % 2) * 0.1} className="h-full">
-              <SpotlightCard className="group/card h-full">
-                <div className="flex items-center gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-primary/10 text-primary transition-colors duration-300 group-hover/card:bg-primary group-hover/card:text-primary-foreground">
-                    <Icon className="size-4" strokeWidth={1.75} />
-                  </span>
-                  <h3 className="font-label text-primary">{pillar.group}</h3>
-                </div>
-
-                <p className="mt-4 font-serif text-xl leading-snug sm:min-h-14">
-                  {pillar.lead}
-                </p>
-
-                <dl className="mt-6 border-t-2 border-foreground/80">
-                  {pillar.features.map(([name, description]) => (
-                    <div
-                      key={name}
-                      className="border-b border-border py-3 last:border-0 sm:grid sm:grid-cols-[minmax(0,9.5rem)_1fr] sm:gap-4"
-                    >
-                      <dt className="text-sm font-medium">{name}</dt>
-                      <dd className="mt-0.5 text-sm text-muted-foreground sm:mt-0">
-                        {description}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </SpotlightCard>
-            </Reveal>
-          ))}
+        <div className="grid gap-6 md:grid-cols-2">
+          {PILLARS.map((pillar, i) => {
+            const Icon = pillar.icon;
+            return (
+              <Reveal key={pillar.group} delay={(i % 2) * 0.1} className="h-full flex justify-center">
+                <InfoCard
+                  icon={<Icon size={18} strokeWidth={1.75} />}
+                  title={pillar.group}
+                  description={pillar.lead}
+                  features={pillar.features}
+                  width={388}
+                  height="auto"
+                  borderColor="var(--primary)"
+                  borderBgColor="var(--border)"
+                  cardBgColor="var(--card)"
+                  textColor="var(--card-foreground)"
+                  hoverTextColor="var(--primary-foreground)"
+                  effectBgColor="var(--primary)"
+                  fontFamily="inherit"
+                />
+              </Reveal>
+            );
+          })}
         </div>
+      </section>
+
+      {/* Pain vs Transformation Matrix */}
+      <section className="mx-auto max-w-6xl px-6 py-16">
+        <h2 className="font-serif text-3xl">The <span className="italic text-primary">Legacy HR Nightmare</span> vs The ActivHR <span className="italic text-primary">Transformation</span></h2>
+        <Separator className="mt-4 mb-10" />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-destructive font-label text-sm">The Legacy HR Nightmare</TableHead>
+              <TableHead className="text-primary font-label text-sm">The ActivHR Transformation</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {PAIN_TRANSFORM.map((item) => (
+              <TableRow key={item.pain}>
+                <TableCell className="whitespace-normal align-top py-4">
+                  <p className="font-serif text-lg">{item.pain}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.painDetail}</p>
+                </TableCell>
+                <TableCell className="whitespace-normal align-top py-4">
+                  <p className="font-serif text-lg">{item.transform}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.transformDetail}</p>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </section>
 
       {/* Pricing & Plan Architecture */}
@@ -278,19 +271,9 @@ export default function Home() {
               >
                 <div className="text-center">
                   <h3 className="font-label text-primary">{plan.name}</h3>
-                  {/* Fixed height: the three taglines are one line each at
-                      desktop but wrap at tablet, and without this the price
-                      below sat at a different height in each card. */}
                   <p className="mt-2 min-h-10 text-sm text-muted-foreground">
                     {plan.tagline}
                   </p>
-                  {/* items-baseline, not two inline spans. "KES 320" and
-                      "Custom" have very different widths and the period ran
-                      along the big number's own line box, so the small text
-                      floated off its baseline — most obvious on the Enterprise
-                      card, where "Custom" and "Contact Sales" are close in
-                      weight. leading-none stops the 4xl line box adding leading
-                      the baseline then has to fight. */}
                   <div className="mt-4 flex items-baseline justify-center gap-1.5">
                     <span className="font-serif text-4xl leading-none">{plan.price}</span>
                     <span className="text-sm text-muted-foreground">{plan.period}</span>
@@ -306,10 +289,6 @@ export default function Home() {
                   ))}
                 </ul>
 
-                {/* mt-auto: the card is `h-full` in a stretch row, so a plan
-                    with shorter content used to leave its dead space BELOW the
-                    button rather than above it, and the three CTAs drifted out
-                    of line. This pins them to the card floor. */}
                 <div className="mt-auto pt-8">
                   <Link href="/login?mode=sign-up" className="block">
                     <Button size="lg" className="w-full" variant={plan.highlighted ? "default" : "outline"}>
@@ -353,7 +332,7 @@ export default function Home() {
                 <h3 className="font-label text-primary">Statutory Compliance</h3>
               </div>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>PAYE • NSSF • SHA • Housing Levy</li>
+                <li>PAYE - NSSF - SHA - Housing Levy</li>
                 <li>Auto-updating with KRA rate revisions</li>
                 <li>Kenya Data Protection Act 2019</li>
                 <li>GDPR guidelines followed</li>
@@ -378,43 +357,12 @@ export default function Home() {
         </div>
       </section>
 
-      
       <ROICalculator />
 
       <FAQ />
 
       {/* CTA band */}
-      <section className="relative isolate overflow-hidden border-y border-transparent bg-pac-ink text-pac-paper dark:border-border dark:bg-pac-graphite">
-        <CtaTexture />
-        <div className="relative mx-auto max-w-6xl px-6 py-16">
-          <BlurLabel
-            text="Ready when you are"
-            className="font-label text-primary"
-          />
-          <RevealHeading className="mt-4 max-w-xl font-serif text-4xl">
-            Get in touch
-          </RevealHeading>
-          <p className="mt-4 max-w-lg text-pac-paper/70">
-            One geofenced check-in flow for guards, field staff, and site teams — with a live dashboard that tells you who&apos;s on site right now, not who clocked in yesterday. Set up your first site in minutes.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/login?mode=sign-up">
-              <Button size="lg">
-                Request a Demo <ArrowRight />
-              </Button>
-            </Link>
-            <a href="#contact">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-pac-paper/30 bg-transparent text-pac-paper hover:bg-pac-paper/10 hover:text-pac-paper"
-              >
-                Request a pilot
-              </Button>
-            </a>
-          </div>
-        </div>
-      </section>
+      
 
       {/* Contact */}
       <section id="contact">
@@ -428,31 +376,31 @@ export default function Home() {
                     Tell us about your <span className="italic text-primary">sites</span>.
                   </RevealHeading>
                   <p className="mt-4 max-w-sm text-muted-foreground">
-                    Share a bit about your team and we&apos;ll set up a pilot on your own sites — no long procurement process, no hardware purchase required to start.
+                    Share a bit about your team and we will set up a pilot on your own sites -- no long procurement process, no hardware purchase required to start.
                   </p>
                   <Separator className="my-6" />
-                <dl className="flex flex-col gap-3 text-sm">
-                  <div className="flex justify-between gap-4">
-                    <dt className="font-label text-muted-foreground">Response time</dt>
-                    <dd>Within 1 business day</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="font-label text-muted-foreground">Coverage</dt>
-                    <dd>Nairobi &amp; nationwide</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="font-label text-muted-foreground">Phone</dt>
-                    <dd><a href="tel:+254700000000" className="hover:text-primary transition-colors">+254 700 000 000</a></dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="font-label text-muted-foreground">Hours</dt>
-                    <dd>Mon–Fri, 8:00 AM – 6:00 PM EAT</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="font-label text-muted-foreground">Email</dt>
-                    <dd>info@activhr.africa</dd>
-                  </div>
-                </dl>
+                  <dl className="flex flex-col gap-3 text-sm">
+                    <div className="flex justify-between gap-4">
+                      <dt className="font-label text-muted-foreground">Response time</dt>
+                      <dd>Within 1 business day</dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="font-label text-muted-foreground">Coverage</dt>
+                      <dd>Nairobi &amp; nationwide</dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="font-label text-muted-foreground">Phone</dt>
+                      <dd><a href="tel:+254700000000" className="hover:text-primary transition-colors">+254 700 000 000</a></dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="font-label text-muted-foreground">Hours</dt>
+                      <dd>Mon-Fri, 8:00 AM - 6:00 PM EAT</dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="font-label text-muted-foreground">Email</dt>
+                      <dd>info@activhr.africa</dd>
+                    </div>
+                  </dl>
                 </div>
               </div>
 
